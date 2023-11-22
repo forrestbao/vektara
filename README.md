@@ -15,14 +15,18 @@ pip install "git+https://github.com/forrestbao/vectara-python-cli.git"
 
 ## Usage 
 
-### Environment variables
-This unofficial Vectara SDK gives you the experience consistent with that of OpenAI, Cohere, etc. You can set up your Vectara credentials as environment variables. 
+### Credentials
+
+You can obtain the Vectara credentials following [this guide](https://docs.vectara.com/docs/learn/authentication/oauth-2). 
+Then set up your Vectara credentials as environment variables. 
 
 ```bash
 export VECTARA_CUSTOMER_ID=123
-export VECTARA_CLIEND_ID=abc
+export VECTARA_CLIENT_ID=abc
 export VECTARA_CLIENT_SECRET=xyz
 ```
+
+This unofficial SDK and CLI will read your credentials from the environment variables above. The ability to pass in credentials as arguments is also supported.
 
 ### Python 
 Try the Jupyter notebook `demo.ipynb` or read the docstring. 
