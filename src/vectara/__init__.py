@@ -325,8 +325,8 @@ class vectara():
 
 def post_process_query_result(
     query_result: Dict,
-    format: Literal['simple_json', 'markdown'] = 'markdown',
-    jupyter_display:bool = False) -> (Dict, Markdown):
+    format: Literal['json', 'markdown'] = 'markdown',
+    jupyter_display:bool = False) -> Markdown | str:
     """Postprocess query results in Vectara's JSON into a simpler dictionary and a Markdown string for displaying
 
     jupyter_display: whether to display the result in a Jupyter notebook. Useful if using in Jupyter notebooks.
@@ -368,10 +368,16 @@ f"""
   _...{md2text(answer['text'])}..._
 """
 
+
+    format = format.lower()    
+
     if format == 'markdown':
         if jupyter_display:
             md_obj = Markdown(md)
             display_markdown(md_obj)
-        return Markdown
-    elif format == 'simple_json':
-        return simple_result
+        return md
+    elif format == 'json':
+        md = '```json\n' + json.dumps(simple_result, indent=2) + "\n```" 
+        if jupyter_display:
+            display_markdown(Markdown(md))
+        return json.dumps(md, indent=2)

@@ -4,12 +4,15 @@ It supports major features of Vectara's RAG platform for you to build your own s
 
 Additional features: 
 * It expands the upload function to allow you to upload a list of files or all files under a directory in one function call. 
-* Renders query results in beautiful Markdown printout.
+* Renders query results in beautiful Markdown printout (see `demo.ipynb`).
 
 ## Installation
 
 ```bash
-# pip install from Github
+# Stable
+pip install vectara
+
+# Nightly
 pip install "git+https://github.com/forrestbao/vectara-python-cli.git"
 ```
 
@@ -71,12 +74,39 @@ vectara query 12 'Vectara allows me to search for anything, right?' --top_k=5  #
 vectara reset_corpus 12 # corpurs_id = 12
 ```
 
-### Beautiful Markdown printout 
+### Stylish query results
+
+The query results are typeset Markdown ready to be rendered. A query result includes the following info: 
+* A summary with citations and matching scores with respect to the query
+* References cited by the summary
 
 
+```bash
+### Here is the answer
+To rearrange objects, you can utilize the "direction" attribute in a Funix decorator [1]. Manually resizing and positioning objects can be a tedious and inefficient process [2]. Another approach is to use a collision-free algorithm for auto-layout, where scopes will be resized to fit the objects inside [4]. An example of arranging objects in a column-reverse direction can be seen in the ChatGPT multiturn app [3]. Additionally, organizing your canvas with scopes can help in rearranging objects effectively [5]. Remember to experiment with these methods to find the best arrangement for your specific needs.
+
+### References:
+    
+1. From document **funix.md** (matchness=0.673933):
+  _...You can change their order and orientation using the "direction" attribute in a Funix decorator...._
+
+2. From document **codepod.md** (matchness=0.65305215):
+  _...It is painful and inefficient to resize and position the pods and scopes manually...._
+
+3. From document **funix.md** (matchness=0.6520513):
+  _...The example below shall be self-explaining:
+A more advanced example is our ChatGPT multiturn app where "direction = "column-reverse"" so the message you type stays at the bottom...._
+
+4. From document **codepod.md** (matchness=0.6495899):
+  _...default}alt="Example banner"width="600"/>
+After auto-layout, the pods and scopes are organized by a collision-free algorithm, and the scopes will be resized to fit the pods inside...._
+
+5. From document **codepod.md** (matchness=0.6460015):
+  _...Organize your Canvas with scopes..._
+```
 
 ## Questions
-Contact forrest at vectara dot come 
+Contact forrest at vectara dot com 
 
 ## Disclaimer
 This is an UNofficial SDK and CLI for Vectara's RAG platform.
