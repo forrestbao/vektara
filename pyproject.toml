@@ -1,18 +1,21 @@
-
 [project]
 name = "vectara"
 version = "0.0.1"
 authors = [
-  {name = "Vectara Inc.", email = "forrest@vectara.com"}
+    { name = "Vectara Inc.", email = "forrest@vectara.com" }
 ]
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
 description = "An unofficial Python SDK and CLI"
 requires-python = ">=3.10"
 dependencies = [
-    "markdown", 
-    "bs4", 
+    "markdown",
+    "bs4",
     "textwrap3",
-    "requests" 
+    "requests",
+    "python-dotenv",
+    "tqdm",
+    "IPython",
+    "fire",
 ]
 
 [build-system]
