@@ -12,7 +12,8 @@ dependencies = [
     "markdown", 
     "bs4", 
     "textwrap3",
-    "requests" 
+    "requests",
+    "python-dotenv"
 ]
 
 [build-system]
