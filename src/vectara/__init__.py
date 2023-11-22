@@ -1,20 +1,20 @@
-# A Python SDK and CLI for Vectara's RAG platform 
+# A Python SDK and CLI for Vectara's RAG platform
 # GPL v3.0 License
 
 # Not officially endorsed by Vectara
 # Use at your own risk
 
 # Copyleft 2023 Forrest Sheng Bao
-# forrest@vectara.com 
+# forrest@vectara.com
 
 import json, os
 from typing import List, Tuple, Literal, Dict
 
 import requests
 
-import dotenv 
+import dotenv
 
-from tqdm import tqdm 
+from tqdm import tqdm
 from IPython.display import Markdown, display_markdown
 import markdown, bs4
 import textwrap
@@ -27,31 +27,29 @@ def md2text(md:str):
     return soup.get_text()
 
 class vectara():
-    def __init__(self, customer_id: str = "", client_id: str="", client_secret: str= "", from_cli: bool = False):       
+    def __init__(self, customer_id: str = "", client_id: str = "", client_secret: str = "", from_cli: bool = False):
+        def get_env(env: str, default: str) -> str:
+            result = os.environ.get(env, default)
+            if result is None or result.isspace() or len(result) == 0:
+                raise TypeError(f"Expected a env `{env}`, but it's not set or empty.")
+            return result
 
-        # default, get credential values from environment variables
-        # for key in ['customer_id', 'client_id', 'client_secret']: 
-            # cmd = f"{key} = os.environ.get('VECTARA_{key.upper()}', '123')"
-            # # print (cmd) 
-            # exec(cmd) 
-        #  FIXME: Why the exec() is not working?
-
-        customer_id = os.environ.get('VECTARA_CUSTOMER_ID', customer_id)
-        client_id = os.environ.get('VECTARA_CLIENT_ID', client_id)
-        client_secret = os.environ.get('VECTARA_CLIENT_SECRET', client_secret)
+        customer_id = get_env('VECTARA_CUSTOMER_ID', customer_id)
+        client_id = get_env('VECTARA_CLIENT_ID', client_id)
+        client_secret = get_env('VECTARA_CLIENT_SECRET', client_secret)
 
         self.customer_id = customer_id
         self.client_id = client_id
         self.client_secret = client_secret
         self.from_cli = from_cli
 
-        if not from_cli: 
+        if not from_cli:
             self.jwt_token = self.acquire_jwt_token()
         # FIXME: CLI mode cannot maintain the instance variable self.jwt_token set in non.__init__ methods, so we need to get a new JWT token for each method call.
         # But this seems to be a limitation of Google-Fire that a member variable cannot be set in one method (except the __init__) and used in another method.
 
         # FIXME: Load JWT_Token from dotenv if in CLI mode.
-        # If jwt_token is not set in a dotenv file, generate one       
+        # If jwt_token is not set in a dotenv file, generate one
         # if from_cli: # only needed for command line interface
         #     print ("CLI mode. ")
         #     if dotenv.dotenv_values(vectara_config).get("VECTARA_JWT_TOKEN", "") == "":
@@ -62,7 +60,7 @@ class vectara():
     def acquire_jwt_token(self):
         """Acquire a JWT token. It will expire in 30 minutes.
 
-        No arguments needed. 
+        No arguments needed.
 
         """
         url = f"https://vectara-prod-{self.customer_id}.auth.us-west-2.amazoncognito.com/oauth2/token"
@@ -91,19 +89,19 @@ class vectara():
 
         if self.from_cli:
             dotenv.set_key(vectara_config, "VECTARA_JWT_TOKEN", jwt_token)
-        
-        return jwt_token 
+
+        return jwt_token
 
     def create_corpus(self, corpus_name:str, corpus_description:str = "") -> int | None:
-        """Create a corpus given the corpus_name and corpus_description 
+        """Create a corpus given the corpus_name and corpus_description
 
         params:
-            corpus_name: the name given to a corpus 
-            corpus_description: the descrption to a corpus 
+            corpus_name: the name given to a corpus
+            corpus_description: the descrption to a corpus
         """
 
         jwt_token = self.jwt_token if not self.from_cli else self.acquire_jwt_token()
-        # TODO: Check whether token is expired. 
+        # TODO: Check whether token is expired.
         # TODO: Load JWT_Token from dotenv if in CLI mode.
 
         url = "https://api.vectara.io/v1/create-corpus"
@@ -127,21 +125,21 @@ class vectara():
         if response.status_code == 200:
             corpus_id = response.json()['corpusId']
             print ("New corpus created, corpus ID is:", corpus_id)
-            return corpus_id 
-        else: 
+            return corpus_id
+        else:
             print ("Corpus creation failed. ")
             print (response.json())
             return None
 
     def reset_corpus(self, corpus_id: int):
-        """Create a corpus given the corpus_name and corpus_description 
+        """Create a corpus given the corpus_name and corpus_description
 
         params:
             corpus_id: the ID of the corpus to reset
         """
 
         jwt_token = self.jwt_token if not self.from_cli else self.acquire_jwt_token()
-        # TODO: Check whether token is expired. 
+        # TODO: Check whether token is expired.
         # TODO: Load JWT_Token from dotenv if in CLI mode.
 
         url = "https://api.vectara.io/v1/reset-corpus"
@@ -165,12 +163,12 @@ class vectara():
             print (f"Failed resetting corpus {corpus_id}. ")
             print (response.json())
 
-        return None 
+        return None
 
     def upload(self, corpus_id: int, source: str | List[str], description: str | List[str] = "", verbose: bool = False):
         """Upload a file, a list of files, or files in a folder, to a corpus specified by corpus_id
 
-        params: 
+        params:
             corpus_id: the corpus ID to upload to
             source: the source to upload, a file, a list of files, or a folder
             description: the description to the file
@@ -192,13 +190,13 @@ class vectara():
     def upload_file(self, corpus_id: int, filepath: str, description: str= "", verbose: bool = False):
         """Upload a file from local storage to a corpus specified by corpus_id
 
-        params: 
+        params:
             corpus_id: the corpus ID to upload to
             filepath: path to file
             description: the description to the file
         """
         jwt_token = self.jwt_token if not self.from_cli else self.acquire_jwt_token()
-        # TODO: Check whether token is expired. 
+        # TODO: Check whether token is expired.
         # TODO: Load JWT_Token from dotenv if in CLI mode.
 
         url = f"https://api.vectara.io/v1/upload?c={self.customer_id}&o={corpus_id}"
@@ -207,9 +205,9 @@ class vectara():
             description = os.path.basename(filepath)
 
         file_payload = (
-                'file', 
-                (description, 
-                open(filepath,'rb'), 
+                'file',
+                (description,
+                open(filepath,'rb'),
                 'application/octet-stream')
             )
 
@@ -221,9 +219,9 @@ class vectara():
             print (f"Uploading...{filepath}", end=" ")
 
         response = requests.post(
-            url, 
-            headers=headers, 
-            # data=payload, 
+            url,
+            headers=headers,
+            # data=payload,
             files=[file_payload]
         )
 
@@ -234,10 +232,10 @@ class vectara():
                 print ("Failed. ")
                 print (response.json())
 
-        return None 
+        return None
 
     def upload_files(self, corpus_id, filepaths: List[str], descriptions: List[str] = [], verbose: bool= False):
-        """Upload a list of files from local storage 
+        """Upload a list of files from local storage
 
         params:
             filepaths: paths to files
@@ -260,20 +258,20 @@ class vectara():
 
         self.upload_files(corpus_id, files, descriptions, verbose)
 
-    def query(self, 
-        corpus_id: int, 
-        query: str, 
-        top_k: int =5, 
+    def query(self,
+        corpus_id: int,
+        query: str,
+        top_k: int =5,
         lang: str ='auto') -> Dict:
-        """Make a query to a corpus at Vectara 
+        """Make a query to a corpus at Vectara
 
-        params: 
-            corpus_id: the corpus ID to send the query to 
+        params:
+            corpus_id: the corpus ID to send the query to
             query: the query (question, search terms) to ask
-            top_k: the number of most matching results to return and to summarize 
-            lang: the language in which a summary is generated 
+            top_k: the number of most matching results to return and to summarize
+            lang: the language in which a summary is generated
             return_format: the return format, 'json' for raw Vectara server return and ''
-            is_jupyter: whether to print results in Jupyter 
+            is_jupyter: whether to print results in Jupyter
         """
         jwt_token = self.jwt_token if not self.from_cli else self.acquire_jwt_token()
         # TODO: Check whether token is expired.
@@ -296,7 +294,7 @@ class vectara():
                         'summary': [
                             {
                                 'maxSummarizedResults': top_k,
-                                'responseLang': lang 
+                                'responseLang': lang
                             }
                         ]
                     }
@@ -322,16 +320,16 @@ class vectara():
             if self.from_cli:
                 simple_json = post_process_query_result(response.json(), format='simple_json')
                 print (json.dumps(simple_json, indent=2))
-            else: 
-                return response.json() 
+            else:
+                return response.json()
 
 def post_process_query_result(
-    query_result: Dict, 
-    format: Literal['simple_json', 'markdown'] = 'markdown', 
+    query_result: Dict,
+    format: Literal['simple_json', 'markdown'] = 'markdown',
     jupyter_display:bool = False) -> (Dict, Markdown):
-    """Postprocess query results in Vectara's JSON into a simpler dictionary and a Markdown string for displaying 
+    """Postprocess query results in Vectara's JSON into a simpler dictionary and a Markdown string for displaying
 
-    jupyter_display: whether to display the result in a Jupyter notebook. Useful if using in Jupyter notebooks. 
+    jupyter_display: whether to display the result in a Jupyter notebook. Useful if using in Jupyter notebooks.
     """
 
     # TODO: Extract title from metadata for each document.
@@ -339,8 +337,8 @@ def post_process_query_result(
     md = ""
 
     answers = query_result['responseSet'][0] # Since we only make one query each time, there is only one element in the responseSet
-      
-    summary = answers['summary'][0]['text'] 
+
+    summary = answers['summary'][0]['text']
 
     summary_md = '\n'.join(textwrap.wrap(summary, 60))
     md += f"""\
@@ -359,11 +357,11 @@ def post_process_query_result(
         simple_result['matches'].append(
             {
                 'src_doc_id': src_doc_id,
-                'src_doc_name': src_doc_name, 
+                'src_doc_name': src_doc_name,
                 'text': answer['text']
             }
-        ) 
-    
+        )
+
         md += \
 f"""
 {number+1}. From document **{src_doc_name}** (matchness={answer['score']}):
