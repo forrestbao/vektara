@@ -1,0 +1,24 @@
+
+[project]
+name = "vectara"
+version = "0.0.1"
+authors = [
+  {name = "Vectara Inc.", email = "forrest@vectara.com"}
+]
+license = {file = "LICENSE"}
+description = "An unofficial Python SDK and CLI"
+requires-python = ">=3.10"
+dependencies = [
+    "markdown", 
+    "bs4", 
+    "textwrap3",
+    "requests" 
+]
+
+[build-system]
+requires = ["setuptools>=46.4.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
+[project.scripts]
+vectara = "vectara.__main__:main"
