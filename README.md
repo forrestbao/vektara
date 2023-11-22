@@ -20,7 +20,7 @@ This unofficial Vectara SDK gives you the experience consistent with that of Ope
 
 ```bash
 export VECTARA_CUSTOMER_ID=123
-export VECTARA_CLIEND_ID=abc
+export VECTARA_CLIENT_ID=abc
 export VECTARA_CLIENT_SECRET=xyz
 ```
 
