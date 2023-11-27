@@ -1,14 +1,13 @@
 # A Python SDK and CLI for Vectara's RAG platform
 # GPL v3.0 License
-
 # Not officially endorsed by Vectara
 # Use at your own risk
 
 # Copyleft 2023 Forrest Sheng Bao
 # forrest@vectara.com
 
-import json, os
-from typing import List, Tuple, Literal, Dict
+import json, os, io
+from typing import List, Literal, Dict
 
 import requests
 
@@ -19,14 +18,27 @@ from IPython.display import Markdown, display_markdown
 import markdown, bs4
 import textwrap
 
+from funix import funix_class, funix_method
+from funix.hint import BytesFile
+
 vectara_config = ".vectara_config"
 
-def md2text(md:str):
+def md2text(md: str):
     html = markdown.markdown(md)
     soup = bs4.BeautifulSoup(html, features='html.parser')
     return soup.get_text()
 
+@funix_class()
 class vectara():
+    @funix_method(
+        title="Initialize Vectara", 
+        print_to_web=True, 
+        widgets= { # this is needed because the SDK also needs to remain compatible with Google Fire. 
+                   # If using Funix only, we can set the type to ipywidgets.password instead of str
+            'client_id': 'password',
+            'client_secret': 'password'
+        }
+    )
     def __init__(self, customer_id: str = "", client_id: str = "", client_secret: str = "", from_cli: bool = False):
         def get_env(env: str, default: str) -> str:
             result = os.environ.get(env, default)
@@ -57,6 +69,7 @@ class vectara():
         #         print ("JWT_Token set in CLI mode", self.jwt_token)
         #         dotenv.set_key(vectara_config, "VECTARA_JWT_TOKEN", self.jwt_token)
 
+    @funix_method(disable=True)
     def acquire_jwt_token(self):
         """Acquire a JWT token. It will expire in 30 minutes.
 
@@ -72,18 +85,19 @@ class vectara():
         }
 
         headers = {
-        'Content-Type': "application/x-www-form-urlencoded",
+            'Content-Type': "application/x-www-form-urlencoded",
         }
 
         response = requests.post(
-                url,
-                data=payload,
-                headers=headers)
+            url,
+            data=payload,
+            headers=headers)
 
         jwt_token = response.json()["access_token"]
 
         if not self.from_cli:
-            print ("Bearer/JWT token generated. It will expire in 30 minutes. To-regenerate, please call acquire_jwt_token(). ")
+            print(
+                "Bearer/JWT token generated. It will expire in 30 minutes. To-regenerate, please call acquire_jwt_token(). ")
 
         self.jwt_token = jwt_token
 
@@ -92,7 +106,8 @@ class vectara():
 
         return jwt_token
 
-    def create_corpus(self, corpus_name:str, corpus_description:str = "") -> int | None:
+    @funix_method(title="Create corpus", print_to_web=True)
+    def create_corpus(self, corpus_name: str, corpus_description: str = "") -> int | None:
         """Create a corpus given the corpus_name and corpus_description
 
         params:
@@ -116,7 +131,8 @@ class vectara():
         )
 
         headers = {
-            "customer-id": f"{self.customer_id}", # Customer ID must be there. Otherwise, error-16, "Request does not contain customer-id-bin header."
+            "customer-id": f"{self.customer_id}",
+            # Customer ID must be there. Otherwise, error-16, "Request does not contain customer-id-bin header."
             "Authorization": f"Bearer {jwt_token}"
         }
 
@@ -124,13 +140,15 @@ class vectara():
 
         if response.status_code == 200:
             corpus_id = response.json()['corpusId']
-            print ("New corpus created, corpus ID is:", corpus_id)
+            print("New corpus created, corpus ID is:", corpus_id)
+            print("Please write down this corpus ID. You will need it to upload files to it and to query against it.")
             return corpus_id
         else:
-            print ("Corpus creation failed. ")
-            print (response.json())
+            print("Corpus creation failed. ")
+            print(response.json())
             return None
 
+    @funix_method(title="Reset corpus", print_to_web=True)
     def reset_corpus(self, corpus_id: int):
         """Create a corpus given the corpus_name and corpus_description
 
@@ -151,20 +169,22 @@ class vectara():
         )
 
         headers = {
-            "customer-id": f"{self.customer_id}", # Customer ID must be there. Otherwise, error-16, "Request does not contain customer-id-bin header."
+            "customer-id": f"{self.customer_id}",
+            # Customer ID must be there. Otherwise, error-16, "Request does not contain customer-id-bin header."
             "Authorization": f"Bearer {jwt_token}"
         }
 
         response = requests.post(url, data=payload, headers=headers)
 
         if response.status_code == 200:
-            print (f"Resetting corpus {corpus_id} successful. ")
+            print(f"Resetting corpus {corpus_id} successful. ")
         else:
-            print (f"Failed resetting corpus {corpus_id}. ")
-            print (response.json())
+            print(f"Failed resetting corpus {corpus_id}. ")
+            print(response.json())
 
         return None
 
+    @funix_method(disable=True)
     def upload(self, corpus_id: int, source: str | List[str], description: str | List[str] = "", verbose: bool = False):
         """Upload a file, a list of files, or files in a folder, to a corpus specified by corpus_id
 
@@ -180,14 +200,54 @@ class vectara():
                 # FIXME: default descrptions for upload_folder() is an empty list. Diff from the default description for upload()).
                 self.upload_folder(corpus_id, source, description, verbose)
             else:
-                print ("Invalid source. ")
+                print("Invalid source. ")
         elif isinstance(source, list):
-                # FIXME: default descrptions for upload_files() is an empty list. Diff from the default description for upload()).
+            # FIXME: default descrptions for upload_files() is an empty list. Diff from the default description for upload()).
             self.upload_files(corpus_id, source, description, verbose)
         else:
-            print ("Invalid source. ")
+            print("Invalid source. ")
 
-    def upload_file(self, corpus_id: int, filepath: str, description: str= "", verbose: bool = False):
+    @funix_method(print_to_web=True, title="Upload file")
+    def upload_file_from_funix(self, corpus_id: int, filebuf: BytesFile, description: str = "", verbose: bool = False) -> Markdown:
+        """Drag and drop a file to Funix frontend to add it to a corpus specified by corpus_id
+        """
+        jwt_token = self.jwt_token if not self.from_cli else self.acquire_jwt_token()
+
+        url = f"https://api.vectara.io/v1/upload?c={self.customer_id}&o={corpus_id}"
+
+        if description == "":
+            description = "A file uploaded via Funix"
+
+        file_payload = (
+            'file',
+            (description,
+             io.BytesIO(filebuf),
+             'application/octet-stream')
+        )
+
+        headers = {
+            'Authorization': f'Bearer {jwt_token}'
+        }
+
+        print(f"Uploading file **{description}** to corpus **{corpus_id}**...")
+
+        response = requests.post(
+            url,
+            headers=headers,
+            # data=payload,
+            files=[file_payload]
+        )
+
+        if response.status_code == 200:
+            print("### **Success.** ")
+        else:
+            print("### **Failed.** ")
+            print(response.json())
+
+        return None
+
+    @funix_method(disable=True)
+    def upload_file(self, corpus_id: int, filepath: str, description: str = "", verbose: bool = False):
         """Upload a file from local storage to a corpus specified by corpus_id
 
         params:
@@ -205,18 +265,18 @@ class vectara():
             description = os.path.basename(filepath)
 
         file_payload = (
-                'file',
-                (description,
-                open(filepath,'rb'),
-                'application/octet-stream')
-            )
+            'file',
+            (description,
+             open(filepath, 'rb'),
+             'application/octet-stream')
+        )
 
         headers = {
             'Authorization': f'Bearer {jwt_token}'
         }
 
         if verbose:
-            print (f"Uploading...{filepath}", end=" ")
+            print(f"Uploading...{filepath}", end=" ")
 
         response = requests.post(
             url,
@@ -227,14 +287,15 @@ class vectara():
 
         if verbose or self.from_cli:
             if response.status_code == 200:
-                print ("Success. ")
+                print("Success. ")
             else:
-                print ("Failed. ")
-                print (response.json())
+                print("Failed. ")
+                print(response.json())
 
         return None
 
-    def upload_files(self, corpus_id, filepaths: List[str], descriptions: List[str] = [], verbose: bool= False):
+    @funix_method(disable=True)
+    def upload_files(self, corpus_id, filepaths: List[str], descriptions: List[str] = [], verbose: bool = False):
         """Upload a list of files from local storage
 
         params:
@@ -245,24 +306,27 @@ class vectara():
         if len(descriptions) < len(filepaths):
             descriptions = list(map(os.path.basename, filepaths))
 
-        for description, filepath in (pbar:= tqdm(zip(descriptions, filepaths), total=len(filepaths), desc="Uploading...")):
+        for description, filepath in (
+            pbar := tqdm(zip(descriptions, filepaths), total=len(filepaths), desc="Uploading...")):
             pbar.set_postfix_str(filepath)
             self.upload_file(corpus_id, filepath, description, verbose)
 
-    def upload_folder(self, corpus_id: str, dirpath: str, descriptions: List[str] =[], verbose: bool = False):
+    @funix_method(disable=True)
+    def upload_folder(self, corpus_id: str, dirpath: str, descriptions: List[str] = [], verbose: bool = False):
         """Upload all files from a directory
         """
 
-        print ("Uploading files from folder:", dirpath)
+        print("Uploading files from folder:", dirpath)
         files = [os.path.join(dirpath, file) for file in os.listdir(dirpath)]
 
         self.upload_files(corpus_id, files, descriptions, verbose)
 
+    @funix_method(disable=True)
     def query(self,
-        corpus_id: int,
-        query: str,
-        top_k: int =5,
-        lang: str ='auto') -> Dict:
+              corpus_id: int,
+              query: str,
+              top_k: int = 5,
+              lang: str = 'auto') -> Dict:
         """Make a query to a corpus at Vectara
 
         params:
@@ -287,8 +351,8 @@ class vectara():
                         "numResults": top_k,
                         "corpusKey": [
                             {
-                            # "customerId": customer_id,
-                            "corpusId": corpus_id,
+                                # "customerId": customer_id,
+                                "corpusId": corpus_id,
                             }
                         ],
                         'summary': [
@@ -303,30 +367,38 @@ class vectara():
         )
 
         headers = {
-        # 'Content-Type': 'application/json',
-        # 'Accept': 'application/json',
-        'customer-id': self.customer_id,
-        'Authorization': f'Bearer {self.jwt_token}'
+            # 'Content-Type': 'application/json',
+            # 'Accept': 'application/json',
+            'customer-id': self.customer_id,
+            'Authorization': f'Bearer {self.jwt_token}'
         }
 
         response = requests.post(url, headers=headers, data=payload)
 
         if response.status_code != 200:
-            print (f"Vectara server returned {response.status_code} error. ")
-            print (response.json())
+            print(f"Vectara server returned {response.status_code} error. ")
+            print(response.json())
             return {}
         else:
-            print ("Query successful. ")
+            print("Query successful. ")
             if self.from_cli:
-                simple_json = post_process_query_result(response.json(), format='simple_json')
-                print (json.dumps(simple_json, indent=2))
+                simple_json = post_process_query_result(response.json(), format='json')
+                print(json.dumps(simple_json, indent=2))
             else:
                 return response.json()
+
+    @funix_method(title="Query")
+    def query_funix(self, corpus_id: int,
+                    query: str,
+                    top_k: int = 5,
+                    lang: str = 'auto') -> Markdown:
+        return post_process_query_result(self.query(corpus_id, query, top_k, lang))
+
 
 def post_process_query_result(
     query_result: Dict,
     format: Literal['json', 'markdown'] = 'markdown',
-    jupyter_display:bool = False) -> Markdown | str:
+    jupyter_display: bool = False) -> Markdown | str:
     """Postprocess query results in Vectara's JSON into a simpler dictionary and a Markdown string for displaying
 
     jupyter_display: whether to display the result in a Jupyter notebook. Useful if using in Jupyter notebooks.
@@ -368,8 +440,7 @@ f"""
   _...{md2text(answer['text'])}..._
 """
 
-
-    format = format.lower()    
+    format = format.lower()
 
     if format == 'markdown':
         if jupyter_display:
@@ -377,7 +448,7 @@ f"""
             display_markdown(md_obj)
         return md
     elif format == 'json':
-        md = '```json\n' + json.dumps(simple_result, indent=2) + "\n```" 
+        md = '```json\n' + json.dumps(simple_result, indent=2) + "\n```"
         if jupyter_display:
             display_markdown(Markdown(md))
         return json.dumps(md, indent=2)

@@ -74,6 +74,29 @@ vectara query 12 'Vectara allows me to search for anything, right?' --top_k=5  #
 vectara reset_corpus 12 # corpurs_id = 12
 ```
 
+### Web interface via Funix
+
+The SDK can be converted into a web interface via [Funix](http://funix.io). You can drag and drop to add a file to your Vectara corpus. 
+
+```python
+pip install funix
+funix src/vectara/__init__.py 
+```
+
+Then you can access the web interface at `http://localhost:3000` (the port number maybe different if port 3000 is occupied).
+
+Below please find the screenshots 
+
+![Initiate Vectara](./screenshots/initiate.png)
+
+![Create a corpus](./screenshots/create_corpus.png)
+
+![Upload a file](./screenshots/upload.gif)
+
+![Query the corpus](./screenshots/query.png)
+
+**Known bugs**: Funix seems to have some memory leakage issues that the web interface may freeze after uploading a file. If that happens, please kill the process and restart the web interface.
+
 ### Stylish query results
 
 The query results are typeset Markdown ready to be rendered. A query result includes the following info: 
