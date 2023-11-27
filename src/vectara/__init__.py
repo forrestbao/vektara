@@ -33,12 +33,11 @@ class vectara():
     @funix_method(
         title="Initialize Vectara", 
         print_to_web=True, 
-        # BUG: Cannot change widgets for client_id and client_secret.
-        # widgets= { # this is needed because the SDK also needs to remain compatible with Google Fire. 
-        #            # If using Funix only, we can set the type to ipywidgets.password instead of str
-        #     client_id: 'password',
-        #     client_secret: 'password'
-        # }
+        widgets= { # this is needed because the SDK also needs to remain compatible with Google Fire. 
+                   # If using Funix only, we can set the type to ipywidgets.password instead of str
+            'client_id': 'password',
+            'client_secret': 'password'
+        }
     )
     def __init__(self, customer_id: str = "", client_id: str = "", client_secret: str = "", from_cli: bool = False):
         def get_env(env: str, default: str) -> str:
