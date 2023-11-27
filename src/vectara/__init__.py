@@ -30,7 +30,16 @@ def md2text(md: str):
 
 @funix_class()
 class vectara():
-    @funix_method(title="Initialize Vectara", print_to_web=True)
+    @funix_method(
+        title="Initialize Vectara", 
+        print_to_web=True, 
+        # BUG: Cannot change widgets for client_id and client_secret.
+        # widgets= { # this is needed because the SDK also needs to remain compatible with Google Fire. 
+        #            # If using Funix only, we can set the type to ipywidgets.password instead of str
+        #     client_id: 'password',
+        #     client_secret: 'password'
+        # }
+    )
     def __init__(self, customer_id: str = "", client_id: str = "", client_secret: str = "", from_cli: bool = False):
         def get_env(env: str, default: str) -> str:
             result = os.environ.get(env, default)
@@ -98,7 +107,7 @@ class vectara():
 
         return jwt_token
 
-    @funix_method(title="Create corpus")
+    @funix_method(title="Create corpus", print_to_web=True)
     def create_corpus(self, corpus_name: str, corpus_description: str = "") -> int | None:
         """Create a corpus given the corpus_name and corpus_description
 
@@ -133,13 +142,14 @@ class vectara():
         if response.status_code == 200:
             corpus_id = response.json()['corpusId']
             print("New corpus created, corpus ID is:", corpus_id)
+            print("Please write down this corpus ID. You will need it to upload files to it and to query against it.")
             return corpus_id
         else:
             print("Corpus creation failed. ")
             print(response.json())
             return None
 
-    @funix_method(title="Reset corpus")
+    @funix_method(title="Reset corpus", print_to_web=True)
     def reset_corpus(self, corpus_id: int):
         """Create a corpus given the corpus_name and corpus_description
 
@@ -199,7 +209,7 @@ class vectara():
             print("Invalid source. ")
 
     @funix_method(print_to_web=True, title="Upload file")
-    def upload_file_from_funix(self, corpus_id: int, filebuf: BytesFile, description: str = "", verbose: bool = False):
+    def upload_file_from_funix(self, corpus_id: int, filebuf: BytesFile, description: str = "", verbose: bool = False) -> Markdown:
         """Drag and drop a file to Funix frontend to add it to a corpus specified by corpus_id
         """
         jwt_token = self.jwt_token if not self.from_cli else self.acquire_jwt_token()
@@ -220,8 +230,7 @@ class vectara():
             'Authorization': f'Bearer {jwt_token}'
         }
 
-        if verbose:
-            print(f"Uploading...", end=" ")
+        print(f"Uploading file **{description}** to corpus **{corpus_id}**...")
 
         response = requests.post(
             url,
@@ -231,9 +240,9 @@ class vectara():
         )
 
         if response.status_code == 200:
-            print("Success. ")
+            print("### **Success.** ")
         else:
-            print("Failed. ")
+            print("### **Failed.** ")
             print(response.json())
 
         return None
