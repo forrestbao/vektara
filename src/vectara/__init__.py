@@ -19,6 +19,9 @@ from IPython.display import Markdown, display_markdown
 import markdown, bs4
 import textwrap
 
+from funix import funix_class, funix_method
+from funix.hint import BytesFile
+
 vectara_config = ".vectara_config"
 
 def md2text(md:str):
@@ -26,7 +29,9 @@ def md2text(md:str):
     soup = bs4.BeautifulSoup(html, features='html.parser')
     return soup.get_text()
 
+@funix_class()
 class vectara():
+    @funix_method(title="Initialize Vectara", print_to_web=True)
     def __init__(self, customer_id: str = "", client_id: str = "", client_secret: str = "", from_cli: bool = False):
         def get_env(env: str, default: str) -> str:
             result = os.environ.get(env, default)
@@ -164,7 +169,8 @@ class vectara():
             print (response.json())
 
         return None
-
+    
+    @funix_method(disable=True)
     def upload(self, corpus_id: int, source: str | List[str], description: str | List[str] = "", verbose: bool = False):
         """Upload a file, a list of files, or files in a folder, to a corpus specified by corpus_id
 
@@ -187,6 +193,49 @@ class vectara():
         else:
             print ("Invalid source. ")
 
+    @funix_method(print_to_web=True)
+    def upload_file_from_funix(self, corpus_id: int, filebuf: BytesFile, description: str = "", verbose: bool = False):
+        """Drag and drop a file to Funix frontend to add it to a corpus specified by corpus_id
+        """
+        jwt_token = self.jwt_token if not self.from_cli else self.acquire_jwt_token()
+
+        url = f"https://api.vectara.io/v1/upload?c={self.customer_id}&o={corpus_id}"
+
+        if description == "":
+            description = "A file uploaded via Funix"
+
+        file_payload = (
+                'file',
+                (description,
+                io.BytesIO(filebuf),
+                'application/octet-stream')
+            )
+
+        # FIXME: HBJ please test this function. 
+
+        headers = {
+            'Authorization': f'Bearer {jwt_token}'
+        }
+
+        if verbose:
+            print (f"Uploading...{filepath}", end=" ")
+
+        response = requests.post(
+            url,
+            headers=headers,
+            # data=payload,
+            files=[file_payload]
+        )
+
+        if response.status_code == 200:
+            print ("Success. ")
+        else:
+            print ("Failed. ")
+            print (response.json())
+
+        return None
+
+    @funix_method(disable=True)
     def upload_file(self, corpus_id: int, filepath: str, description: str= "", verbose: bool = False):
         """Upload a file from local storage to a corpus specified by corpus_id
 
@@ -234,6 +283,7 @@ class vectara():
 
         return None
 
+    @funix_method(disable=True)
     def upload_files(self, corpus_id, filepaths: List[str], descriptions: List[str] = [], verbose: bool= False):
         """Upload a list of files from local storage
 
@@ -249,6 +299,7 @@ class vectara():
             pbar.set_postfix_str(filepath)
             self.upload_file(corpus_id, filepath, description, verbose)
 
+    @funix_method(disable=True)
     def upload_folder(self, corpus_id: str, dirpath: str, descriptions: List[str] =[], verbose: bool = False):
         """Upload all files from a directory
         """
@@ -257,6 +308,8 @@ class vectara():
         files = [os.path.join(dirpath, file) for file in os.listdir(dirpath)]
 
         self.upload_files(corpus_id, files, descriptions, verbose)
+
+    # def upload_file_from_web(self, corpus_id: int, url: str, description: str = "", verbose: bool = False):
 
     def query(self,
         corpus_id: int,
