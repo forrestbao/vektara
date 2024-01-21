@@ -31,15 +31,15 @@ def md2text(md: str):
 @funix_class()
 class vectara():
     @funix_method(
-        title="Initialize Vectara", 
-        print_to_web=True, 
-        widgets= { # this is needed because the SDK also needs to remain compatible with Google Fire. 
+        title="Initialize Vectara",
+        print_to_web=True,
+        widgets= { # this is needed because the SDK also needs to remain compatible with Google Fire.
                    # If using Funix only, we can set the type to ipywidgets.password instead of str
             'client_id': 'password',
             'client_secret': 'password'
         }
     )
-    def __init__(self, customer_id: str = "", client_id: str = "", client_secret: str = "", from_cli: bool = False):
+    def __init__(self, base_url = "https://api.vectara.io", customer_id: str = "", client_id: str = "", client_secret: str = "", from_cli: bool = False):
         def get_env(env: str, default: str) -> str:
             result = os.environ.get(env, default)
             if result is None or result.isspace() or len(result) == 0:
@@ -49,10 +49,17 @@ class vectara():
         customer_id = get_env('VECTARA_CUSTOMER_ID', customer_id)
         client_id = get_env('VECTARA_CLIENT_ID', client_id)
         client_secret = get_env('VECTARA_CLIENT_SECRET', client_secret)
+        base_url = get_env('VECTARA_BASE_URL', base_url)
+
+        def is_true(value: str) -> bool:
+            return value.lower() in ['true', 'yes', '1']
+
+        self.proxy_mode = is_true(os.environ.get('VECTARA_PROXY_MODE', 'false'))
 
         self.customer_id = customer_id
         self.client_id = client_id
         self.client_secret = client_secret
+        self.base_url = base_url
         self.from_cli = from_cli
 
         if not from_cli:
@@ -76,7 +83,9 @@ class vectara():
         No arguments needed.
 
         """
-        url = f"https://vectara-prod-{self.customer_id}.auth.us-west-2.amazoncognito.com/oauth2/token"
+        headers = {
+            'Content-Type': "application/x-www-form-urlencoded",
+        }
 
         payload = {
             "grant_type": "client_credentials",
@@ -84,9 +93,11 @@ class vectara():
             "client_secret": self.client_secret
         }
 
-        headers = {
-            'Content-Type': "application/x-www-form-urlencoded",
-        }
+
+        if self.proxy_mode:
+            url = f"{self.base_url}/oauth2/token"
+        else:
+            url = f"https://vectara-prod-{self.customer_id}.auth.us-west-2.amazoncognito.com/oauth2/token"
 
         response = requests.post(
             url,
@@ -119,7 +130,7 @@ class vectara():
         # TODO: Check whether token is expired.
         # TODO: Load JWT_Token from dotenv if in CLI mode.
 
-        url = "https://api.vectara.io/v1/create-corpus"
+        url = f"{self.base_url}/v1/create-corpus"
 
         payload = json.dumps(
             {
@@ -160,7 +171,7 @@ class vectara():
         # TODO: Check whether token is expired.
         # TODO: Load JWT_Token from dotenv if in CLI mode.
 
-        url = "https://api.vectara.io/v1/reset-corpus"
+        url = f"{self.base_url}/v1/reset-corpus"
 
         payload = json.dumps(
             {
@@ -213,7 +224,7 @@ class vectara():
         """
         jwt_token = self.jwt_token if not self.from_cli else self.acquire_jwt_token()
 
-        url = f"https://api.vectara.io/v1/upload?c={self.customer_id}&o={corpus_id}"
+        url = f"{self.base_url}/v1/upload?c={self.customer_id}&o={corpus_id}"
 
         if description == "":
             description = "A file uploaded via Funix"
@@ -259,7 +270,7 @@ class vectara():
         # TODO: Check whether token is expired.
         # TODO: Load JWT_Token from dotenv if in CLI mode.
 
-        url = f"https://api.vectara.io/v1/upload?c={self.customer_id}&o={corpus_id}"
+        url = f"{self.base_url}/v1/upload?c={self.customer_id}&o={corpus_id}"
 
         if description == "":
             description = os.path.basename(filepath)
@@ -341,7 +352,7 @@ class vectara():
         # TODO: Check whether token is expired.
         # TODO: Load JWT_Token from dotenv if in CLI mode.
 
-        url = f"https://api.vectara.io/v1/query"
+        url = f"{self.base_url}/v1/query"
 
         payload = json.dumps(
             {
