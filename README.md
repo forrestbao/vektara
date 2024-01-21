@@ -27,6 +27,9 @@ Then set up your Vectara credentials as environment variables.
 export VECTARA_CUSTOMER_ID=123
 export VECTARA_CLIENT_ID=abc
 export VECTARA_CLIENT_SECRET=xyz
+
+# optional, if you are using a proxy like LlaMasterKey https://github.com/TexteaInc/LlaMasterKey/
+export VECTARA_BASE_URL="http://127.0.0.1:8000/vectara"
 ```
 
 This unofficial SDK and CLI will read your credentials from the environment variables above. The ability to pass in credentials as arguments is also supported.
