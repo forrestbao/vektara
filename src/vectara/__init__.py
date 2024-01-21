@@ -56,6 +56,9 @@ class vectara():
 
         self.proxy_mode = is_true(os.environ.get('VECTARA_PROXY_MODE', 'false'))
 
+        if base_url != "https://api.vectara.io":
+            self.proxy_mode = True # force proxy mode if base_url is not the default
+
         self.customer_id = customer_id
         self.client_id = client_id
         self.client_secret = client_secret
@@ -64,7 +67,7 @@ class vectara():
 
         if not from_cli:
             self.jwt_token = self.acquire_jwt_token()
-        # FIXME: CLI mode cannot maintain the instance variable self.jwt_token set in non.__init__ methods, so we need to get a new JWT token for each method call.
+        # FIXME: CLI mode cannot maintain the instance variable self.jwt_token set in non-__init__ methods, so we need to get a new JWT token for each method call.
         # But this seems to be a limitation of Google-Fire that a member variable cannot be set in one method (except the __init__) and used in another method.
 
         # FIXME: Load JWT_Token from dotenv if in CLI mode.
