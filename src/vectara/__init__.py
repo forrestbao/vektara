@@ -340,7 +340,8 @@ class vectara():
               corpus_id: int,
               query: str,
               top_k: int = 5,
-              lang: str = 'auto') -> Dict:
+              lang: str = 'auto',
+              contextConfig: dict = None) -> Dict:
         """Make a query to a corpus at Vectara
 
         params:
@@ -356,8 +357,7 @@ class vectara():
         # TODO: Load JWT_Token from dotenv if in CLI mode.
 
         url = f"{self.base_url}/v1/query"
-
-        payload = json.dumps(
+        payload = \
             {
                 "query": [
                     {
@@ -378,7 +378,10 @@ class vectara():
                     }
                 ]
             }
-        )
+        if contextConfig is not None:
+            payload["query"][0]["contextConfig"] = contextConfig
+
+        payload = json.dumps(payload)
 
         headers = {
             # 'Content-Type': 'application/json',
