@@ -18,11 +18,30 @@ from IPython.display import Markdown, display_markdown
 import markdown, bs4
 import textwrap
 
-from funix import funix_class, funix_method
+from funix import funix_class, funix_method, funix
+from funix.session import set_global_variable
 from funix.hint import BytesFile
+
+import sqlite3
+con = sqlite3.connect("feedback.db", check_same_thread=False)
+cursor = con.cursor()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS feedback (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    question TEXT NOT NULL,
+    corpus_id INTEGER NOT NULL,
+    top_k INTEGER NOT NULL,
+    lang TEXT NOT NULL,
+    raw_response TEXT NOT NULL,
+    consistent BOOLEAN NOT NULL
+);
+""")
+con.commit()
 
 vectara_config = ".vectara_config"
 
+@funix(disable=True)
 def md2text(md: str):
     html = markdown.markdown(md)
     soup = bs4.BeautifulSoup(html, features='html.parser')
@@ -39,7 +58,7 @@ class vectara():
             'client_secret': 'password'
         }
     )
-    def __init__(self, base_url = "https://api.vectara.io", customer_id: str = "", client_id: str = "", client_secret: str = "", from_cli: bool = False):
+    def __init__(self, base_url: str = "https://api.vectara.io", customer_id: str = "", client_id: str = "", client_secret: str = "", from_cli: bool = False):
         def get_env(env: str, default: str) -> str:
             result = os.environ.get(env, default)
             if result is None or result.isspace() or len(result) == 0:
@@ -78,6 +97,9 @@ class vectara():
         #         self.acquire_jwt_token()
         #         print ("JWT_Token set in CLI mode", self.jwt_token)
         #         dotenv.set_key(vectara_config, "VECTARA_JWT_TOKEN", self.jwt_token)
+        
+        # question, corpus_id, top_k, lang, raw_return
+        self.last_result: dict = {}
 
     @funix_method(disable=True)
     def acquire_jwt_token(self):
@@ -395,6 +417,13 @@ class vectara():
             return {}
         else:
             print("Query successful. ")
+            self.last_result = {
+                "question": query,
+                "corpus_id": corpus_id,
+                "top_k": top_k,
+                "lang": lang,
+                "raw_response": response.json(),
+            }
             if self.from_cli:
                 simple_json = post_process_query_result(response.json(), format='json')
                 print(json.dumps(simple_json, indent=2))
@@ -406,9 +435,29 @@ class vectara():
                     query: str,
                     top_k: int = 5,
                     lang: str = 'auto') -> Markdown:
-        return post_process_query_result(self.query(corpus_id, query, top_k, lang))
+        result = post_process_query_result(self.query(corpus_id, query, top_k, lang))
+        set_global_variable("last_markdown_result", result)
+        return result
+    
+    @funix_method(
+        session_description="last_markdown_result",
+    )
+    def feedback(self, is_consistent: bool = False) -> str:
+        cursor.execute("""
+        INSERT INTO feedback (question, corpus_id, top_k, lang, raw_response, consistent)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """, (
+            self.last_result['question'],
+            self.last_result['corpus_id'],
+            self.last_result['top_k'],
+            self.last_result['lang'],
+            json.dumps(self.last_result['raw_response'], ensure_ascii=False),
+            is_consistent
+        ))
+        con.commit()
+        return "Thank you for your feedback."
 
-
+@funix(disable=True)
 def post_process_query_result(
     query_result: Dict,
     format: Literal['json', 'markdown'] = 'markdown',
@@ -453,6 +502,8 @@ f"""
 {number+1}. From document **{src_doc_name}** (matchness={answer['score']}):
   _...{md2text(answer['text'])}..._
 """
+        
+    md += "\n\n[Feedback](/feedback)"
 
     format = format.lower()
 

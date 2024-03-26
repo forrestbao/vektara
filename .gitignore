@@ -3,3 +3,7 @@ __pycache__
 
 .vscode
 .idea
+
+feedback.db
+
+.DS_Store
