@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS feedback (
     corpus_id INTEGER NOT NULL,
     top_k INTEGER NOT NULL,
     lang TEXT NOT NULL,
+    score REAL NOT NULL,
     raw_response TEXT NOT NULL,
     consistent BOOLEAN NOT NULL
 );
@@ -98,7 +99,7 @@ class vectara():
         #         print ("JWT_Token set in CLI mode", self.jwt_token)
         #         dotenv.set_key(vectara_config, "VECTARA_JWT_TOKEN", self.jwt_token)
         
-        # question, corpus_id, top_k, lang, raw_return
+        # question, corpus_id, top_k, lang, score, raw_return
         self.last_result: dict = {}
 
     @funix_method(disable=True)
@@ -216,7 +217,6 @@ class vectara():
             print(f"Resetting corpus {corpus_id} successful. ")
         else:
             print(f"Failed resetting corpus {corpus_id}. ")
-            print(response.json())
 
         return None
 
@@ -417,11 +417,13 @@ class vectara():
             return {}
         else:
             print("Query successful. ")
+            print(response.json())
             self.last_result = {
                 "question": query,
                 "corpus_id": corpus_id,
                 "top_k": top_k,
                 "lang": lang,
+                "score": response.json()['responseSet'][0]['summary'][0]['factualConsistency']['score'],
                 "raw_response": response.json(),
             }
             if self.from_cli:
@@ -444,13 +446,14 @@ class vectara():
     )
     def feedback(self, is_consistent: bool = False) -> str:
         cursor.execute("""
-        INSERT INTO feedback (question, corpus_id, top_k, lang, raw_response, consistent)
+        INSERT INTO feedback (question, corpus_id, top_k, lang, score, raw_response, consistent)
         VALUES (?, ?, ?, ?, ?, ?)
         """, (
             self.last_result['question'],
             self.last_result['corpus_id'],
             self.last_result['top_k'],
             self.last_result['lang'],
+            self.last_result['score'],
             json.dumps(self.last_result['raw_response'], ensure_ascii=False),
             is_consistent
         ))
@@ -474,11 +477,14 @@ def post_process_query_result(
     answers = query_result['responseSet'][0] # Since we only make one query each time, there is only one element in the responseSet
 
     summary = answers['summary'][0]['text']
+    score = answers['summary'][0]['factualConsistency']['score']
 
     summary_md = '\n'.join(textwrap.wrap(summary, 60))
     md += f"""\
 ### Here is the answer
 {summary}
+
+Factual Consistency Score: `{score}`
 
 ### References:
     """
