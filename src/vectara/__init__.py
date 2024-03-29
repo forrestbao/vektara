@@ -400,7 +400,7 @@ class vectara():
         is_consistent = True if consistent == "Yes" else False
         cursor.execute("""
         INSERT INTO feedback (question, corpus_id, top_k, lang, score, raw_response, consistent)
-        VALUES (?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
         """, (
             self.last_result['question'],
             self.last_result['corpus_id'],
