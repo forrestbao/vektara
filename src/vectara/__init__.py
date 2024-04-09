@@ -95,6 +95,7 @@ class vectara():
         self.base_url = base_url
         self.from_cli = from_cli
         self.customer_id = customer_id
+        self.jwt_token = None
         
         if use_oauth2:
             self.client_id = get_env('VECTARA_CLIENT_ID', client_id)
@@ -114,6 +115,9 @@ class vectara():
                     raise TypeError("Either API Key or Client ID and Client Secret must be provided.")
             else:
                 self.jwt_token = None
+        
+        if self.jwt_token and self.api_key:
+            print("Warning: Both OAuth2 and API Key are set. API Key will be used.")
         
         if not from_cli:
             print("Vectara SDK initialized. ")
