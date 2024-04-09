@@ -101,8 +101,20 @@ class vectara():
             self.client_secret = get_env('VECTARA_CLIENT_SECRET', client_secret)
             self.acquire_jwt_token()
         else:
-            api_key = get_env('VECTARA_API_KEY', api_key)
-            self.jwt_token = None
+            try:
+                self.api_key = get_env('VECTARA_API_KEY', api_key)
+            except TypeError:
+                pass
+            if not self.api_key:
+                self.client_id = get_env('VECTARA_CLIENT_ID', client_id)
+                self.client_secret = get_env('VECTARA_CLIENT_SECRET', client_secret)
+                if self.client_id and self.client_secret:
+                    self.acquire_jwt_token()
+                else:
+                    raise TypeError("Either API Key or Client ID and Client Secret must be provided.")
+            else:
+                self.jwt_token = None
+        print(self.api_key, self.jwt_token)
         
         if not from_cli:
             print("Vectara SDK initialized. ")
