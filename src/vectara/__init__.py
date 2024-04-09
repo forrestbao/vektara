@@ -202,10 +202,10 @@ class vectara():
             # Customer ID must be there. Otherwise, error-16, "Request does not contain customer-id-bin header."
         }
         
-        if self.jwt_token:
-            headers["Authorization"] = f"Bearer {self.jwt_token}"
-        else:
+        if self.api_key:
             headers["x-api-key"] = self.api_key
+        else:
+            headers["Authorization"] = f"Bearer {self.jwt_token}"
 
         response = requests.post(url, data=payload, headers=headers)
 
@@ -242,10 +242,10 @@ class vectara():
             # Customer ID must be there. Otherwise, error-16, "Request does not contain customer-id-bin header."
         }
         
-        if self.jwt_token:
-            headers["Authorization"] = f"Bearer {self.jwt_token}"
-        else:
+        if self.api_key:
             headers["x-api-key"] = self.api_key
+        else:
+            headers["Authorization"] = f"Bearer {self.jwt_token}"
 
         response = requests.post(url, data=payload, headers=headers)
 
@@ -295,14 +295,12 @@ class vectara():
              'application/octet-stream')
         )
         
-        if self.jwt_token:
-            headers = {
-                "Authorization": f"Bearer {self.jwt_token}"
-            }
+        headers = {}
+        
+        if self.api_key:
+            headers["x-api-key"] = self.api_key
         else:
-            headers = {
-                'x-api-key': self.api_key
-            }
+            headers["Authorization"] = f"Bearer {self.jwt_token}"
 
         print(f"Uploading file **{description}** to corpus **{corpus_id}**...")
 
@@ -344,15 +342,13 @@ class vectara():
              open(filepath, 'rb'),
              'application/octet-stream')
         )
+        
+        headers = {}
 
-        if self.jwt_token:
-            headers = {
-                "Authorization": f"Bearer {self.jwt_token}"
-            }
+        if self.api_key:
+            headers["x-api-key"] = self.api_key
         else:
-            headers = {
-                'x-api-key': self.api_key
-            }
+            headers["Authorization"] = f"Bearer {self.jwt_token}"
 
         if verbose:
             print(f"Uploading...{filepath}", end=" ")
@@ -451,10 +447,10 @@ class vectara():
             'customer-id': self.customer_id,
         }
         
-        if self.jwt_token:
-            headers["Authorization"] = f"Bearer {self.jwt_token}"
-        else:
+        if self.api_key:
             headers["x-api-key"] = self.api_key
+        else:
+            headers["Authorization"] = f"Bearer {self.jwt_token}"
 
         response = requests.post(url, headers=headers, data=payload)
 

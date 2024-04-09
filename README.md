@@ -35,8 +35,11 @@ export VECTARA_API_KEY=abc
 export VECTARA_CLIENT_ID=abc
 export VECTARA_CLIENT_SECRET=xyz
 
+# Do not set up API Key and OAuth2 at the same time, if you set up API Key and OAuth2 at the same time, we will only use the API Key.
+
 # optional, if you are using a proxy like LlaMasterKey https://github.com/TexteaInc/LlaMasterKey/
 export VECTARA_BASE_URL="http://127.0.0.1:8000/vectara"
+export VECTARA_PROXY_MODE=true # Enable proxy mode
 ```
 
 This unofficial SDK and CLI will read your credentials from the environment variables above. The ability to pass in credentials as arguments is also supported.
@@ -50,7 +53,7 @@ from vectara import vectara
 
 client = vectara() # get default credentials from environment variables 
                    # You can also manually pass in your credentials as arguments
-                   # The API Key is used first, if there is no API Key, it is returned to OAuth2.
+                   # API Key is more important than OAuth 2, the SDK uses the API Key first, if not then fall back to OAuth2.
 
 corpus_id = client.create_corpus('my knowledge base')
 
