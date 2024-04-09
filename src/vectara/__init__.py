@@ -54,8 +54,8 @@ class vectara():
     @funix_method(
         title="Initialize Vectara",
         print_to_web=True,
-        widgets= { # this is needed because the SDK also needs to remain compatible with Google Fire.
-                   # If using Funix only, we can set the type to ipywidgets.password instead of str
+        widgets= { # api_key and client_secret must be str to be compatible with Google Fire.
+                   # If using Funix only, we can set them to ipywidgets.password
             'api_key': 'password',
             'client_secret': 'password',
         },
@@ -74,51 +74,61 @@ class vectara():
             }
         ]
     )
-    def __init__(self, base_url: str = "https://api.vectara.io", api_key: str = "", customer_id: str = "", client_id: str = "", client_secret: str = "", from_cli: bool = False, use_oauth2: bool = False):
+    def __init__(self, 
+                base_url: str = "https://api.vectara.io", 
+                customer_id: str = "", 
+                api_key: str = "", 
+                client_id: str = "", 
+                client_secret: str = "", 
+                from_cli: bool = False, 
+                use_oauth2: bool = False
+            ):
         def get_env(env: str, default: str) -> str:
             result = os.environ.get(env, default)
             if result is None or result.isspace() or len(result) == 0:
-                raise TypeError(f"Expected a env `{env}`, but it's not set or empty.")
+                raise TypeError(f"Expecting `{env}` in __init__ of the `vectara` class or as an environment variable. But it is not set.")
             return result
-        base_url = get_env('VECTARA_BASE_URL', base_url)
-        customer_id = get_env('VECTARA_CUSTOMER_ID', customer_id)
 
-        def is_true(value: str) -> bool:
+        def is_void(s: str):
+            return s is None or s.isspace() or len(s) == 0
+
+        def str2bool(value: str) -> bool:
             return value.lower() in ['true', 'yes', '1']
 
-        self.proxy_mode = is_true(os.environ.get('VECTARA_PROXY_MODE', 'false'))
+        self.proxy_mode = str2bool(os.environ.get('VECTARA_PROXY_MODE', 'false'))
+        # only for LlamaKey.ai to use. 
 
         if base_url != "https://api.vectara.io":
             self.proxy_mode = True # force proxy mode if base_url is not the default
 
-        self.api_key = api_key
-        self.base_url = base_url
+        self.base_url = get_env('VECTARA_BASE_URL', base_url)  # must 
+        self.customer_id = get_env('VECTARA_CUSTOMER_ID', customer_id)  # must 
+        client_id = os.environ.get('VECTARA_CLIENT_ID', client_id)
+        client_secret = os.environ.get('VECTARA_CLIENT_SECRET', client_secret)
         self.from_cli = from_cli
-        self.customer_id = customer_id
+
+        self.client_id = None 
+        self.client_secret = None
+        self.api_key = None 
         self.jwt_token = None
-        
-        if use_oauth2:
-            self.client_id = get_env('VECTARA_CLIENT_ID', client_id)
-            self.client_secret = get_env('VECTARA_CLIENT_SECRET', client_secret)
+
+        api_key = os.environ.get('VECTARA_API_KEY', api_key)
+
+        if use_oauth2 or is_void(api_key): # manually request to use OAuth2 or API Key is not available
+            if use_oauth2:
+                print ("You chose to use OAuth2. API Key will be ingored.")
+            if is_void(api_key): 
+                print ("API Key not set. Fall back to OAuth2 for authentication.")
+            assert not is_void(client_id), "OAuth2 client_id not available. Please set."
+            assert not is_void(client_secret), "OAuth2 client_secret not available. Please set."
+            self.client_id = client_id
+            self.client_secret = client_secret
             self.acquire_jwt_token()
-        else:
-            try:
-                self.api_key = get_env('VECTARA_API_KEY', api_key)
-            except TypeError:
-                pass
-            if not self.api_key:
-                self.client_id = get_env('VECTARA_CLIENT_ID', client_id)
-                self.client_secret = get_env('VECTARA_CLIENT_SECRET', client_secret)
-                if self.client_id and self.client_secret:
-                    self.acquire_jwt_token()
-                else:
-                    raise TypeError("Either API Key or Client ID and Client Secret must be provided.")
-            else:
-                self.jwt_token = None
-        
-        if self.jwt_token and self.api_key:
-            print("Warning: Both OAuth2 and API Key are set. API Key will be used.")
-        
+        else: # API key is available
+            self.api_key = api_key 
+            if not is_void(client_id) and not is_void(client_secret):
+                print ("Although OAuth2 credentials are available, API key will be used because it is present. To use OAuth2, either unset API key or set use_oauth2 to True to override.")
+               
         if not from_cli:
             print("Vectara SDK initialized. ")
 
@@ -166,7 +176,12 @@ class vectara():
             data=payload,
             headers=headers)
 
-        jwt_token = response.json()["access_token"]
+        try: 
+            jwt_token = response.json()["access_token"]
+        except:
+            print("Failed to acquire JWT token. ")
+            print(response.json())
+            exit() # exit the program if failed to acquire JWT token
 
         if not self.from_cli:
             print(
@@ -406,6 +421,7 @@ class vectara():
               query: str,
               top_k: int = 5,
               lang: str = 'auto',
+              return_summary: bool = True,
         ) -> Dict:
         """Make a query to a corpus at Vectara
 
@@ -421,9 +437,7 @@ class vectara():
         # TODO: Load JWT_Token from dotenv if in CLI mode.
 
         url = f"{self.base_url}/v1/query"
-
-        payload = json.dumps(
-            {
+        payload = {
                 "query": [
                     {
                         "query": query,
@@ -434,16 +448,19 @@ class vectara():
                                 "corpusId": corpus_id,
                             }
                         ],
-                        'summary': [
-                            {
-                                'maxSummarizedResults': top_k,
-                                'responseLang': lang
-                            }
-                        ]
                     }
                 ]
             }
-        )
+
+        if return_summary:
+            payload["query"][0]["summary"] = [
+                {
+                    'maxSummarizedResults': top_k,
+                    'responseLang': lang
+                }
+            ] 
+
+        payload = json.dumps(payload)
 
         headers = {
             # 'Content-Type': 'application/json',
@@ -469,7 +486,7 @@ class vectara():
                 "corpus_id": corpus_id,
                 "top_k": top_k,
                 "lang": lang,
-                "score": response.json()['responseSet'][0]['summary'][0]['factualConsistency']['score'],
+                "score": response.json()['responseSet'][0]['summary'][0]['factualConsistency']['score'] if return_summary else None,
                 "raw_response": response.json(),
             }
             if self.from_cli:
@@ -528,13 +545,17 @@ def post_process_query_result(
 
     answers = query_result['responseSet'][0] # Since we only make one query each time, there is only one element in the responseSet
 
-    summary = answers['summary'][0]['text']
-    score = answers['summary'][0]['factualConsistency']['score']
+    try: 
+        summary = answers['summary'][0]['text']
+        score = answers['summary'][0]['factualConsistency']['score']
+    except IndexError:
+        summary = "No summary available."
+        score = "N/A"
 
-    summary_md = '\n'.join(textwrap.wrap(summary, 60))
+    summary_md = '\n'.join(textwrap.wrap(summary, 100))
     md += f"""\
 ### Here is the answer
-{summary}
+{summary_md if format == 'markdown' else summary}
 
 Factual Consistency Score: `{score}`
 

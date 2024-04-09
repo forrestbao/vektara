@@ -6,6 +6,9 @@ Additional features:
 
 * It expands the upload function to allow you to upload a list of files or all files under a directory in one function call.
 * Renders query results in beautiful Markdown printout (see `demo.ipynb`).
+* It supports logging user feedback from the GUI in a local SQLite database for evaluating the quality of search and RAG. 
+
+**If you like this SDK/CLI/GUI, give us a star on Github!**
 
 ## Installation
 
@@ -21,47 +24,49 @@ pip install "git+https://github.com/forrestbao/vectara-python-cli.git"
 
 ### Credentials
 
-You can obtain the Vectara credentials following [this guide](https://docs.vectara.com/docs/learn/authentication/oauth-2).
-Then set up your Vectara credentials as environment variables.
+This client supports authentication in both Vectara's [Personal API key](https://docs.vectara.com/docs/console-ui/personal-api-key) and [OAuth2](https://docs.vectara.com/docs/console-ui/app-clients). In either case, you need to obtain [customer ID](https://docs.vectara.com/docs/console-ui/vectara-console-overview#view-the-customer-id) as well. 
+
+Following the convention of OpenAI's client, we recommend setting credentials as environment variables. You can save them as a bash script and simply `source` it before using the SDK or CLI.
 
 ```bash
-# Required environment variables
-export VECTARA_CUSTOMER_ID=123
+export VECTARA_CUSTOMER_ID=123 # Required regardless of the authentication method
 
-# API Key
+# Set API Key if you plan to use Personal API Key to authenticate
 export VECTARA_API_KEY=abc
 
-# Or you can use OAuth2
+# Set the following two variables if you plan to use OAuth2 to authenticate
 export VECTARA_CLIENT_ID=abc
 export VECTARA_CLIENT_SECRET=xyz
 
-# Do not set up API Key and OAuth2 at the same time, if you set up API Key and OAuth2 at the same time, we will only use the API Key.
+# If both API key and OAuth2 credentials are set, the SDK will use API key only.
 
 # optional, if you are using a proxy like LlaMasterKey https://github.com/TexteaInc/LlaMasterKey/
 export VECTARA_BASE_URL="http://127.0.0.1:8000/vectara"
 export VECTARA_PROXY_MODE=true # Enable proxy mode
 ```
 
-This unofficial SDK and CLI will read your credentials from the environment variables above. The ability to pass in credentials as arguments is also supported.
+Alternatively, you can pass in your credentials as arguments when initializing the client. See it from the complete code. 
 
-### Python
+### Using the Python SDK 
 
-Try the Jupyter notebook `demo.ipynb` or read the docstring.
+Try the Jupyter notebook `demo.ipynb`, the script `demo.py`, or read the docstring.
 
 ```python
-from vectara import vectara
+from vectara import vectara, post_process_query_result
 
-client = vectara() # get default credentials from environment variables 
-                   # You can also manually pass in your credentials as arguments
-                   # API Key is more important than OAuth 2, the SDK uses the API Key first, if not then fall back to OAuth2.
+client = vectara() # get credentials from environment variables 
 
 corpus_id = client.create_corpus('my knowledge base')
 
-client.upload(corpus_id, 'one_file.pdf', description='My precious doc')  # add one file to the corpus 
+client.upload(corpus_id, 'one_file.pdf', description='A scientific paper')  # add one file to the corpus 
 client.upload(corpus_id, 'a_folder_of_documents') # add all files under a folder to the corpus
-client.upload(corpus_id, ['user_manual.md', 'notes.txt'], description=['user manual', 'my memory']) # add a list of files to the corpus
+client.upload(corpus_id, ['README.md', 'demo.py'], description=['README', 'demo code']) # add a list of files to the corpus
 
-client.query(corpus_id, 'Vectara allows me to search for anything, right?', top_k=5) # query the corpus for top 5 answers
+r = client.query(corpus_id, 'How to set credentials? ', top_k=5) # query the corpus for top 5 answers, return a JSON string 
+print (post_process_query_result(r)) # post process the query result to get a list of answers
+
+r = client.query(corpus_id, 'How to set credentials? ', top_k=5, return_summary=False) # query the corpus for top 5 answers, no summary, just search, return a JSON string
+print (post_process_query_result(r)) # post process the query result to get a list of answers
 
 client.reset_corpus(corpus_id) # delete all documents in the corpus
 ```
