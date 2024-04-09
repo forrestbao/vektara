@@ -421,6 +421,7 @@ class vectara():
               query: str,
               top_k: int = 5,
               lang: str = 'auto',
+              contextConfig: dict = None,
               return_summary: bool = True,
         ) -> Dict:
         """Make a query to a corpus at Vectara
@@ -452,7 +453,10 @@ class vectara():
                 ]
             }
 
-        if return_summary:
+        if contextConfig is not None: # add context 
+            payload["query"][0]["contextConfig"] = contextConfig
+
+        if return_summary: # add summary 
             payload["query"][0]["summary"] = [
                 {
                     'maxSummarizedResults': top_k,
