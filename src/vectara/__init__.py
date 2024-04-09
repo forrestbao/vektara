@@ -57,16 +57,29 @@ class vectara():
         widgets= { # this is needed because the SDK also needs to remain compatible with Google Fire.
                    # If using Funix only, we can set the type to ipywidgets.password instead of str
             'api_key': 'password',
-        }
+            'client_secret': 'password',
+        },
+        conditional_visible=[
+            {
+                "when": {
+                    "use_oauth2": True
+                },
+                "show": ["client_id", "client_secret"]
+            },
+            {
+                "when": {
+                    "use_oauth2": False
+                },
+                "show": ["api_key"]
+            }
+        ]
     )
-    def __init__(self, base_url: str = "https://api.vectara.io", api_key: str = "", customer_id: str = "", from_cli: bool = False):
+    def __init__(self, base_url: str = "https://api.vectara.io", api_key: str = "", customer_id: str = "", client_id: str = "", client_secret: str = "", from_cli: bool = False, use_oauth2: bool = False):
         def get_env(env: str, default: str) -> str:
             result = os.environ.get(env, default)
             if result is None or result.isspace() or len(result) == 0:
                 raise TypeError(f"Expected a env `{env}`, but it's not set or empty.")
             return result
-
-        api_key = get_env('VECTARA_API_KEY', api_key)
         base_url = get_env('VECTARA_BASE_URL', base_url)
         customer_id = get_env('VECTARA_CUSTOMER_ID', customer_id)
 
@@ -82,6 +95,14 @@ class vectara():
         self.base_url = base_url
         self.from_cli = from_cli
         self.customer_id = customer_id
+        
+        if use_oauth2:
+            self.client_id = get_env('VECTARA_CLIENT_ID', client_id)
+            self.client_secret = get_env('VECTARA_CLIENT_SECRET', client_secret)
+            self.acquire_jwt_token()
+        else:
+            api_key = get_env('VECTARA_API_KEY', api_key)
+            self.jwt_token = None
         
         if not from_cli:
             print("Vectara SDK initialized. ")
@@ -99,7 +120,49 @@ class vectara():
         #         dotenv.set_key(vectara_config, "VECTARA_JWT_TOKEN", self.jwt_token)
         
         # question, corpus_id, top_k, lang, score, raw_return
+        
         self.last_result: dict = {}
+
+    @funix_method(disable=True)
+    def acquire_jwt_token(self):
+        """Acquire a JWT token. It will expire in 30 minutes.
+
+        No arguments needed.
+
+        """
+        headers = {
+            'Content-Type': "application/x-www-form-urlencoded",
+        }
+
+        payload = {
+            "grant_type": "client_credentials",
+            "client_id": self.client_id,
+            "client_secret": self.client_secret
+        }
+
+
+        if self.proxy_mode:
+            url = f"{self.base_url}/oauth2/token"
+        else:
+            url = f"https://vectara-prod-{self.customer_id}.auth.us-west-2.amazoncognito.com/oauth2/token"
+
+        response = requests.post(
+            url,
+            data=payload,
+            headers=headers)
+
+        jwt_token = response.json()["access_token"]
+
+        if not self.from_cli:
+            print(
+                "Bearer/JWT token generated. It will expire in 30 minutes. To-regenerate, please call acquire_jwt_token(). ")
+
+        self.jwt_token = jwt_token
+
+        if self.from_cli:
+            dotenv.set_key(vectara_config, "VECTARA_JWT_TOKEN", jwt_token)
+
+        return jwt_token
 
     @funix_method(title="Create corpus", print_to_web=True)
     def create_corpus(self, corpus_name: str, corpus_description: str = "") -> int | None:
@@ -126,8 +189,12 @@ class vectara():
         headers = {
             "customer-id": self.customer_id,
             # Customer ID must be there. Otherwise, error-16, "Request does not contain customer-id-bin header."
-            "x-api-key": self.api_key
         }
+        
+        if self.jwt_token:
+            headers["Authorization"] = f"Bearer {self.jwt_token}"
+        else:
+            headers["x-api-key"] = self.api_key
 
         response = requests.post(url, data=payload, headers=headers)
 
@@ -162,8 +229,12 @@ class vectara():
         headers = {
             "customer-id": self.customer_id,
             # Customer ID must be there. Otherwise, error-16, "Request does not contain customer-id-bin header."
-            "x-api-key": self.api_key
         }
+        
+        if self.jwt_token:
+            headers["Authorization"] = f"Bearer {self.jwt_token}"
+        else:
+            headers["x-api-key"] = self.api_key
 
         response = requests.post(url, data=payload, headers=headers)
 
@@ -212,10 +283,15 @@ class vectara():
              io.BytesIO(filebuf),
              'application/octet-stream')
         )
-
-        headers = {
-            'x-api-key': self.api_key
-        }
+        
+        if self.jwt_token:
+            headers = {
+                "Authorization": f"Bearer {self.jwt_token}"
+            }
+        else:
+            headers = {
+                'x-api-key': self.api_key
+            }
 
         print(f"Uploading file **{description}** to corpus **{corpus_id}**...")
 
@@ -258,9 +334,14 @@ class vectara():
              'application/octet-stream')
         )
 
-        headers = {
-            'x-api-key': self.api_key
-        }
+        if self.jwt_token:
+            headers = {
+                "Authorization": f"Bearer {self.jwt_token}"
+            }
+        else:
+            headers = {
+                'x-api-key': self.api_key
+            }
 
         if verbose:
             print(f"Uploading...{filepath}", end=" ")
@@ -313,7 +394,8 @@ class vectara():
               corpus_id: int,
               query: str,
               top_k: int = 5,
-              lang: str = 'auto') -> Dict:
+              lang: str = 'auto',
+        ) -> Dict:
         """Make a query to a corpus at Vectara
 
         params:
@@ -356,8 +438,12 @@ class vectara():
             # 'Content-Type': 'application/json',
             # 'Accept': 'application/json',
             'customer-id': self.customer_id,
-            'x-api-key': self.api_key
         }
+        
+        if self.jwt_token:
+            headers["Authorization"] = f"Bearer {self.jwt_token}"
+        else:
+            headers["x-api-key"] = self.api_key
 
         response = requests.post(url, headers=headers, data=payload)
 
