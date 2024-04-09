@@ -18,11 +18,32 @@ from IPython.display import Markdown, display_markdown
 import markdown, bs4
 import textwrap
 
-from funix import funix_class, funix_method
+from funix import funix_class, funix_method, funix
+from funix.session import set_global_variable
 from funix.hint import BytesFile
+from typing import Literal
+
+import sqlite3
+con = sqlite3.connect("feedback.db", check_same_thread=False)
+cursor = con.cursor()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS feedback (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    question TEXT NOT NULL,
+    corpus_id INTEGER NOT NULL,
+    top_k INTEGER NOT NULL,
+    lang TEXT NOT NULL,
+    score REAL NOT NULL,
+    raw_response TEXT NOT NULL,
+    consistent BOOLEAN NOT NULL
+);
+""")
+con.commit()
 
 vectara_config = ".vectara_config"
 
+@funix(disable=True)
 def md2text(md: str):
     html = markdown.markdown(md)
     soup = bs4.BeautifulSoup(html, features='html.parser')
@@ -33,40 +54,84 @@ class vectara():
     @funix_method(
         title="Initialize Vectara",
         print_to_web=True,
-        widgets= { # this is needed because the SDK also needs to remain compatible with Google Fire.
-                   # If using Funix only, we can set the type to ipywidgets.password instead of str
-            'client_id': 'password',
-            'client_secret': 'password'
-        }
+        widgets= { # api_key and client_secret must be str to be compatible with Google Fire.
+                   # If using Funix only, we can set them to ipywidgets.password
+            'api_key': 'password',
+            'client_secret': 'password',
+        },
+        conditional_visible=[
+            {
+                "when": {
+                    "use_oauth2": True
+                },
+                "show": ["client_id", "client_secret"]
+            },
+            {
+                "when": {
+                    "use_oauth2": False
+                },
+                "show": ["api_key"]
+            }
+        ]
     )
-    def __init__(self, base_url = "https://api.vectara.io", customer_id: str = "", client_id: str = "", client_secret: str = "", from_cli: bool = False):
+    def __init__(self, 
+                base_url: str = "https://api.vectara.io", 
+                customer_id: str = "", 
+                api_key: str = "", 
+                client_id: str = "", 
+                client_secret: str = "", 
+                from_cli: bool = False, 
+                use_oauth2: bool = False
+            ):
         def get_env(env: str, default: str) -> str:
             result = os.environ.get(env, default)
             if result is None or result.isspace() or len(result) == 0:
-                raise TypeError(f"Expected a env `{env}`, but it's not set or empty.")
+                raise TypeError(f"Expecting `{env}` in __init__ of the `vectara` class or as an environment variable. But it is not set.")
             return result
 
-        customer_id = get_env('VECTARA_CUSTOMER_ID', customer_id)
-        client_id = get_env('VECTARA_CLIENT_ID', client_id)
-        client_secret = get_env('VECTARA_CLIENT_SECRET', client_secret)
-        base_url = get_env('VECTARA_BASE_URL', base_url)
+        def is_void(s: str):
+            return s is None or s.isspace() or len(s) == 0
 
-        def is_true(value: str) -> bool:
+        def str2bool(value: str) -> bool:
             return value.lower() in ['true', 'yes', '1']
 
-        self.proxy_mode = is_true(os.environ.get('VECTARA_PROXY_MODE', 'false'))
+        self.proxy_mode = str2bool(os.environ.get('VECTARA_PROXY_MODE', 'false'))
+        # only for LlamaKey.ai to use. 
 
         if base_url != "https://api.vectara.io":
             self.proxy_mode = True # force proxy mode if base_url is not the default
 
-        self.customer_id = customer_id
-        self.client_id = client_id
-        self.client_secret = client_secret
-        self.base_url = base_url
+        self.base_url = get_env('VECTARA_BASE_URL', base_url)  # must 
+        self.customer_id = get_env('VECTARA_CUSTOMER_ID', customer_id)  # must 
+        client_id = os.environ.get('VECTARA_CLIENT_ID', client_id)
+        client_secret = os.environ.get('VECTARA_CLIENT_SECRET', client_secret)
         self.from_cli = from_cli
 
+        self.client_id = None 
+        self.client_secret = None
+        self.api_key = None 
+        self.jwt_token = None
+
+        api_key = os.environ.get('VECTARA_API_KEY', api_key)
+
+        if use_oauth2 or is_void(api_key): # manually request to use OAuth2 or API Key is not available
+            if use_oauth2:
+                print ("You chose to use OAuth2. API Key will be ingored.")
+            if is_void(api_key): 
+                print ("API Key not set. Fall back to OAuth2 for authentication.")
+            assert not is_void(client_id), "OAuth2 client_id not available. Please set."
+            assert not is_void(client_secret), "OAuth2 client_secret not available. Please set."
+            self.client_id = client_id
+            self.client_secret = client_secret
+            self.acquire_jwt_token()
+        else: # API key is available
+            self.api_key = api_key 
+            if not is_void(client_id) and not is_void(client_secret):
+                print ("Although OAuth2 credentials are available, API key will be used because it is present. To use OAuth2, either unset API key or set use_oauth2 to True to override.")
+               
         if not from_cli:
-            self.jwt_token = self.acquire_jwt_token()
+            print("Vectara SDK initialized. ")
+
         # FIXME: CLI mode cannot maintain the instance variable self.jwt_token set in non-__init__ methods, so we need to get a new JWT token for each method call.
         # But this seems to be a limitation of Google-Fire that a member variable cannot be set in one method (except the __init__) and used in another method.
 
@@ -78,6 +143,10 @@ class vectara():
         #         self.acquire_jwt_token()
         #         print ("JWT_Token set in CLI mode", self.jwt_token)
         #         dotenv.set_key(vectara_config, "VECTARA_JWT_TOKEN", self.jwt_token)
+        
+        # question, corpus_id, top_k, lang, score, raw_return
+        
+        self.last_result: dict = {}
 
     @funix_method(disable=True)
     def acquire_jwt_token(self):
@@ -107,7 +176,12 @@ class vectara():
             data=payload,
             headers=headers)
 
-        jwt_token = response.json()["access_token"]
+        try: 
+            jwt_token = response.json()["access_token"]
+        except:
+            print("Failed to acquire JWT token. ")
+            print(response.json())
+            exit() # exit the program if failed to acquire JWT token
 
         if not self.from_cli:
             print(
@@ -128,8 +202,6 @@ class vectara():
             corpus_name: the name given to a corpus
             corpus_description: the descrption to a corpus
         """
-
-        jwt_token = self.jwt_token if not self.from_cli else self.acquire_jwt_token()
         # TODO: Check whether token is expired.
         # TODO: Load JWT_Token from dotenv if in CLI mode.
 
@@ -145,10 +217,14 @@ class vectara():
         )
 
         headers = {
-            "customer-id": f"{self.customer_id}",
+            "customer-id": self.customer_id,
             # Customer ID must be there. Otherwise, error-16, "Request does not contain customer-id-bin header."
-            "Authorization": f"Bearer {jwt_token}"
         }
+        
+        if self.api_key:
+            headers["x-api-key"] = self.api_key
+        else:
+            headers["Authorization"] = f"Bearer {self.jwt_token}"
 
         response = requests.post(url, data=payload, headers=headers)
 
@@ -169,8 +245,6 @@ class vectara():
         params:
             corpus_id: the ID of the corpus to reset
         """
-
-        jwt_token = self.jwt_token if not self.from_cli else self.acquire_jwt_token()
         # TODO: Check whether token is expired.
         # TODO: Load JWT_Token from dotenv if in CLI mode.
 
@@ -183,10 +257,14 @@ class vectara():
         )
 
         headers = {
-            "customer-id": f"{self.customer_id}",
+            "customer-id": self.customer_id,
             # Customer ID must be there. Otherwise, error-16, "Request does not contain customer-id-bin header."
-            "Authorization": f"Bearer {jwt_token}"
         }
+        
+        if self.api_key:
+            headers["x-api-key"] = self.api_key
+        else:
+            headers["Authorization"] = f"Bearer {self.jwt_token}"
 
         response = requests.post(url, data=payload, headers=headers)
 
@@ -194,7 +272,6 @@ class vectara():
             print(f"Resetting corpus {corpus_id} successful. ")
         else:
             print(f"Failed resetting corpus {corpus_id}. ")
-            print(response.json())
 
         return None
 
@@ -225,8 +302,6 @@ class vectara():
     def upload_file_from_funix(self, corpus_id: int, filebuf: BytesFile, description: str = "", verbose: bool = False) -> Markdown:
         """Drag and drop a file to Funix frontend to add it to a corpus specified by corpus_id
         """
-        jwt_token = self.jwt_token if not self.from_cli else self.acquire_jwt_token()
-
         url = f"{self.base_url}/v1/upload?c={self.customer_id}&o={corpus_id}"
 
         if description == "":
@@ -238,10 +313,13 @@ class vectara():
              io.BytesIO(filebuf),
              'application/octet-stream')
         )
-
-        headers = {
-            'Authorization': f'Bearer {jwt_token}'
-        }
+        
+        headers = {}
+        
+        if self.api_key:
+            headers["x-api-key"] = self.api_key
+        else:
+            headers["Authorization"] = f"Bearer {self.jwt_token}"
 
         print(f"Uploading file **{description}** to corpus **{corpus_id}**...")
 
@@ -269,7 +347,6 @@ class vectara():
             filepath: path to file
             description: the description to the file
         """
-        jwt_token = self.jwt_token if not self.from_cli else self.acquire_jwt_token()
         # TODO: Check whether token is expired.
         # TODO: Load JWT_Token from dotenv if in CLI mode.
 
@@ -284,10 +361,13 @@ class vectara():
              open(filepath, 'rb'),
              'application/octet-stream')
         )
+        
+        headers = {}
 
-        headers = {
-            'Authorization': f'Bearer {jwt_token}'
-        }
+        if self.api_key:
+            headers["x-api-key"] = self.api_key
+        else:
+            headers["Authorization"] = f"Bearer {self.jwt_token}"
 
         if verbose:
             print(f"Uploading...{filepath}", end=" ")
@@ -341,7 +421,9 @@ class vectara():
               query: str,
               top_k: int = 5,
               lang: str = 'auto',
-              contextConfig: dict = None) -> Dict:
+              contextConfig: dict = None,
+              return_summary: bool = True,
+        ) -> Dict:
         """Make a query to a corpus at Vectara
 
         params:
@@ -352,13 +434,11 @@ class vectara():
             return_format: the return format, 'json' for raw Vectara server return and ''
             is_jupyter: whether to print results in Jupyter
         """
-        jwt_token = self.jwt_token if not self.from_cli else self.acquire_jwt_token()
         # TODO: Check whether token is expired.
         # TODO: Load JWT_Token from dotenv if in CLI mode.
 
         url = f"{self.base_url}/v1/query"
-        payload = \
-            {
+        payload = {
                 "query": [
                     {
                         "query": query,
@@ -369,17 +449,20 @@ class vectara():
                                 "corpusId": corpus_id,
                             }
                         ],
-                        'summary': [
-                            {
-                                'maxSummarizedResults': top_k,
-                                'responseLang': lang
-                            }
-                        ]
                     }
                 ]
             }
-        if contextConfig is not None:
+
+        if contextConfig is not None: # add context 
             payload["query"][0]["contextConfig"] = contextConfig
+
+        if return_summary: # add summary 
+            payload["query"][0]["summary"] = [
+                {
+                    'maxSummarizedResults': top_k,
+                    'responseLang': lang
+                }
+            ] 
 
         payload = json.dumps(payload)
 
@@ -387,8 +470,12 @@ class vectara():
             # 'Content-Type': 'application/json',
             # 'Accept': 'application/json',
             'customer-id': self.customer_id,
-            'Authorization': f'Bearer {self.jwt_token}'
         }
+        
+        if self.api_key:
+            headers["x-api-key"] = self.api_key
+        else:
+            headers["Authorization"] = f"Bearer {self.jwt_token}"
 
         response = requests.post(url, headers=headers, data=payload)
 
@@ -398,20 +485,55 @@ class vectara():
             return {}
         else:
             print("Query successful. ")
+            self.last_result = {
+                "question": query,
+                "corpus_id": corpus_id,
+                "top_k": top_k,
+                "lang": lang,
+                "score": response.json()['responseSet'][0]['summary'][0]['factualConsistency']['score'] if return_summary else None,
+                "raw_response": response.json(),
+            }
             if self.from_cli:
                 simple_json = post_process_query_result(response.json(), format='json')
                 print(json.dumps(simple_json, indent=2))
             else:
                 return response.json()
 
-    @funix_method(title="Query")
+    @funix_method(title="Query", keep_last = True)
     def query_funix(self, corpus_id: int,
                     query: str,
                     top_k: int = 5,
                     lang: str = 'auto') -> Markdown:
-        return post_process_query_result(self.query(corpus_id, query, top_k, lang))
+        result = post_process_query_result(self.query(corpus_id, query, top_k, lang))
+        set_global_variable("last_markdown_result", "\n".join(result.splitlines()[:-3]))
+        return result
+    
+    @funix_method(
+        title="Feedback",
+        session_description="last_markdown_result",
+    )
+    def feedback(self, consistent: Literal["Yes", "No"]) -> str:
+        if not self.last_result:
+            return "No query result to provide feedback for."
+        is_consistent = True if consistent == "Yes" else False
+        cursor.execute("""
+        INSERT INTO feedback (question, corpus_id, top_k, lang, score, raw_response, consistent)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (
+            self.last_result['question'],
+            self.last_result['corpus_id'],
+            self.last_result['top_k'],
+            self.last_result['lang'],
+            self.last_result['score'],
+            json.dumps(self.last_result['raw_response'], ensure_ascii=False),
+            is_consistent
+        ))
+        con.commit()
+        set_global_variable("last_markdown_result", "")
+        self.last_result = {}
+        return "Thank you for your feedback."
 
-
+@funix(disable=True)
 def post_process_query_result(
     query_result: Dict,
     format: Literal['json', 'markdown'] = 'markdown',
@@ -427,12 +549,19 @@ def post_process_query_result(
 
     answers = query_result['responseSet'][0] # Since we only make one query each time, there is only one element in the responseSet
 
-    summary = answers['summary'][0]['text']
+    try: 
+        summary = answers['summary'][0]['text']
+        score = answers['summary'][0]['factualConsistency']['score']
+    except IndexError:
+        summary = "No summary available."
+        score = "N/A"
 
-    summary_md = '\n'.join(textwrap.wrap(summary, 60))
+    summary_md = '\n'.join(textwrap.wrap(summary, 100))
     md += f"""\
 ### Here is the answer
-{summary}
+{summary_md if format == 'markdown' else summary}
+
+Factual Consistency Score: `{score}`
 
 ### References:
     """
@@ -456,6 +585,8 @@ f"""
 {number+1}. From document **{src_doc_name}** (matchness={answer['score']}):
   _...{md2text(answer['text'])}..._
 """
+        
+    md += "\n\n[Feedback](/feedback)"
 
     format = format.lower()
 
