@@ -114,7 +114,6 @@ class vectara():
                     raise TypeError("Either API Key or Client ID and Client Secret must be provided.")
             else:
                 self.jwt_token = None
-        print(self.api_key, self.jwt_token)
         
         if not from_cli:
             print("Vectara SDK initialized. ")
