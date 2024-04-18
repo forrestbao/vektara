@@ -76,10 +76,10 @@ class vectara():
     )
     def __init__(self, 
                 base_url: str = "https://api.vectara.io", 
-                customer_id: str = "", 
-                api_key: str = "", 
-                client_id: str = "", 
-                client_secret: str = "", 
+                customer_id: str = None,
+                api_key: str = None, 
+                client_id: str = None, 
+                client_secret: str = None, 
                 from_cli: bool = False, 
                 use_oauth2: bool = False
             ):
@@ -276,44 +276,54 @@ class vectara():
         return None
 
     @funix_method(disable=True)
-    def upload(self, corpus_id: int, source: str | List[str], description: str | List[str] = "", verbose: bool = False):
+    def upload(self, 
+            corpus_id: int, 
+            source: str | List[str], 
+            doc_id: str | List[str] = None, 
+            metadata: Dict | List[Dict]= {}, 
+            verbose: bool = False
+        ) -> str | List[str] :
         """Upload a file, a list of files, or files in a folder, to a corpus specified by corpus_id
 
         params:
             corpus_id: the corpus ID to upload to
-            source: the source to upload, a file, a list of files, or a folder
-            description: the description to the file
+            source: the source to upload, a file path, a folder path, or a list of file paths
+            metadata: metadata for file(s). If a dict, then the same metadata will be used for all files in the request. If a list of dict, then each element is the metadata for each file in the request.
+            doc_id: alphanumeric ID(s) for referring to the document(s) later. If a string, then it only works when source is a single file. If a list of strings, then each element of `doc_id` is the `doc.id` for each file in the request.
         """
         if isinstance(source, str):
             if os.path.isfile(source):
-                self.upload_file(corpus_id, source, description, verbose=True)
+                assert doc_id is None or isinstance(doc_id, str), "doc_id must be either empty or a string if source is a single file."
+                r = self.upload_file(corpus_id, source, doc_id=doc_id, metadata=metadata, verbose=True)
             elif os.path.isdir(source):
                 # FIXME: default descrptions for upload_folder() is an empty list. Diff from the default description for upload()).
-                self.upload_folder(corpus_id, source, description, verbose)
+                assert doc_id is None or isinstance(doc_id, list), "doc_id must be a list if source is a folder."
+                r = self.upload_folder(corpus_id, source, doc_ids=doc_id, metadata=metadata, verbose=verbose)
             else:
                 print("Invalid source. ")
         elif isinstance(source, list):
             # FIXME: default descrptions for upload_files() is an empty list. Diff from the default description for upload()).
-            self.upload_files(corpus_id, source, description, verbose)
+            assert doc_id is None or isinstance(doc_id, list), "doc_id must be either empty or a list if source is a list of file paths."
+            r = self.upload_files(corpus_id, source, doc_ids=doc_id, metadata=metadata, verbose=verbose)
         else:
-            print("Invalid source. ")
+            print(f"Invalid source {source} ")
+            exit() 
+        return r
 
-    @funix_method(print_to_web=True, title="Upload file")
-    def upload_file_from_funix(self, corpus_id: int, filebuf: BytesFile, description: str = "", verbose: bool = False) -> Markdown:
+    @funix_method(title="Upload file")
+    def upload_file_from_funix(self, corpus_id: int, filebuf: BytesFile, doc_id: str = "", metadata:str = "", verbose: bool = False) -> Markdown:
         """Drag and drop a file to Funix frontend to add it to a corpus specified by corpus_id
         """
         url = f"{self.base_url}/v1/upload?c={self.customer_id}&o={corpus_id}"
 
-        if description == "":
-            description = "A file uploaded via Funix"
+        if doc_id == "":
+            doc_id = "A file uploaded via Funix"
 
-        file_payload = (
-            'file',
-            (description,
-             io.BytesIO(filebuf),
-             'application/octet-stream')
-        )
-        
+        file_payload = {
+            "file": (doc_id, io.BytesIO(filebuf), 'application/octet-stream'), 
+            "doc_metadata": (None, json.dumps(metadata), 'application/json')
+        }
+       
         headers = {}
         
         if self.api_key:
@@ -321,47 +331,44 @@ class vectara():
         else:
             headers["Authorization"] = f"Bearer {self.jwt_token}"
 
-        print(f"Uploading file **{description}** to corpus **{corpus_id}**...")
+        print(f"Uploading file **{doc_id}** to corpus **{corpus_id}**...")
 
         response = requests.post(
             url,
             headers=headers,
-            # data=payload,
             files=[file_payload]
         )
 
         if response.status_code == 200:
-            print("### **Success.** ")
+            if verbose:
+                return "### **Success.** " + f"```{response.json()}```" 
+            else: 
+                return "### **Success.** "
         else:
-            print("### **Failed.** ")
-            print(response.json())
-
-        return None
+            return "### **Success.** " + f"```{response.json()}```" 
 
     @funix_method(disable=True)
-    def upload_file(self, corpus_id: int, filepath: str, description: str = "", verbose: bool = False):
+    def upload_file(self, corpus_id: int, filepath: str, doc_id: str = "", metadata: Dict = {}, verbose: bool = False):
         """Upload a file from local storage to a corpus specified by corpus_id
 
         params:
             corpus_id: the corpus ID to upload to
             filepath: path to file
-            description: the description to the file
+            doc_id: a alphanumeric ID for referring to the document later
         """
         # TODO: Check whether token is expired.
         # TODO: Load JWT_Token from dotenv if in CLI mode.
 
         url = f"{self.base_url}/v1/upload?c={self.customer_id}&o={corpus_id}"
 
-        if description == "":
-            description = os.path.basename(filepath)
+        if doc_id == None or doc_id == "":
+            doc_id = os.path.basename(filepath)
 
-        file_payload = (
-            'file',
-            (description,
-             open(filepath, 'rb'),
-             'application/octet-stream')
-        )
-        
+        file_payload = {
+            "file": (doc_id, open(filepath, 'rb'), 'application/octet-stream'), 
+            "doc_metadata": (None, json.dumps(metadata), 'application/json')
+        }
+
         headers = {}
 
         if self.api_key:
@@ -375,45 +382,69 @@ class vectara():
         response = requests.post(
             url,
             headers=headers,
-            # data=payload,
-            files=[file_payload]
+            files=file_payload
         )
 
-        if verbose or self.from_cli:
-            if response.status_code == 200:
-                print("Success. ")
-            else:
-                print("Failed. ")
-                print(response.json())
+        if response.status_code == 200:
+            print("Success. ")
+        else:
+            print("Failed. ")
+            print(response.json())
 
-        return None
+        return response.json() 
 
     @funix_method(disable=True)
-    def upload_files(self, corpus_id, filepaths: List[str], descriptions: List[str] = [], verbose: bool = False):
+    def upload_files(self, corpus_id, filepaths: List[str], doc_ids: List[str] = [], metadata: Dict | List[Dict] = {}, verbose: bool = False) -> List[Dict]:
         """Upload a list of files from local storage
 
         params:
             filepaths: paths to files
-            descriptions: the descriptions to the files
+            doc_ids: alphanumeric IDs for referring to the documents later
+            metadata: metadata for files. If a dict, then the same metadata will be used for all files in the request. If a list of dict, then each element is the metadata for each file in the request.
         """
 
-        if len(descriptions) < len(filepaths):
-            descriptions = list(map(os.path.basename, filepaths))
+        assert len(filepaths) == len(set(filepaths)), "Duplicate filepaths found in `filepaths`. Please make sure all filepaths are unique. "
 
-        for description, filepath in (
-            pbar := tqdm(zip(descriptions, filepaths), total=len(filepaths), desc="Uploading...")):
+        if doc_ids == [] or doc_ids == None:
+            print ("doc_ids is empty. Using filenames as doc_ids.")
+            doc_ids = [os.path.basename(file) for file in filepaths]
+        else:
+            assert len(doc_ids) == len(filepaths), "Length of doc_ids must be the same as the number of files."
+
+        if isinstance(metadata, dict):
+            print ("metadata is a dict. Duplicating it for all files.")
+            metadata = [metadata] * len(filepaths)
+        else: 
+            assert len(metadata) == len(filepaths), "Length of metadata must be the same as the number of files."        
+
+        responses = [] 
+        for doc_id, metadata, filepath in (
+                pbar := tqdm(zip(doc_ids, metadata, filepaths), 
+                total=len(filepaths), 
+                desc="Uploading...")):
             pbar.set_postfix_str(filepath)
-            self.upload_file(corpus_id, filepath, description, verbose)
+            response = self.upload_file(corpus_id, filepath, doc_id=doc_id, metadata=metadata, verbose=verbose)
+            responses.append(response)
 
+        return responses
+    
     @funix_method(disable=True)
-    def upload_folder(self, corpus_id: str, dirpath: str, descriptions: List[str] = [], verbose: bool = False):
+    def upload_folder(self, corpus_id: str, dirpath: str, doc_ids: List[str] = [], metadata: Dict | List[Dict] = {}, verbose: bool = False) -> List[Dict]:
         """Upload all files from a directory
+
+        params:
+            filepaths: paths to files
+            doc_ids: alphanumeric IDs for referring to the documents later
+            metadata: metadata for files. If a dict, then the same metadata will be used for all files in the request. If a list of dict, then each element is the metadata for each file in the request.
         """
 
         print("Uploading files from folder:", dirpath)
-        files = [os.path.join(dirpath, file) for file in os.listdir(dirpath)]
+        files = [os.path.join(dirpath, file) for file in os.listdir(dirpath) if os.path.isfile(os.path.join(dirpath, file))]
 
-        self.upload_files(corpus_id, files, descriptions, verbose)
+        responses = []
+        response = self.upload_files(corpus_id, files, doc_ids=doc_ids, metadata=metadata, verbose=verbose)
+        responses.append(response)
+        return responses
 
     @funix_method(disable=True)
     def query(self,
@@ -423,6 +454,9 @@ class vectara():
               lang: str = 'auto',
               contextConfig: dict = None,
               return_summary: bool = True,
+              metadata_filter: str = "", 
+              print_format: Literal['json', 'markdown'] = 'markdown',
+              verbose: bool = False
         ) -> Dict:
         """Make a query to a corpus at Vectara
 
@@ -431,8 +465,9 @@ class vectara():
             query: the query (question, search terms) to ask
             top_k: the number of most matching results to return and to summarize
             lang: the language in which a summary is generated
-            return_format: the return format, 'json' for raw Vectara server return and ''
-            is_jupyter: whether to print results in Jupyter
+            contextConfig: See https://docs.vectara.com/docs/rest-api/query? for details 
+            return_summary: whether to return a summary of the top_k results
+            metadata_filter: a dictionary of metadata filter to narrow down the search results. See https://docs.vectara.com/docs/learn/metadata-search-filtering/filter-overview and for details. 
         """
         # TODO: Check whether token is expired.
         # TODO: Load JWT_Token from dotenv if in CLI mode.
@@ -448,7 +483,7 @@ class vectara():
                                 # "customerId": customer_id,
                                 "corpusId": corpus_id,
                             }
-                        ],
+                        ]
                     }
                 ]
             }
@@ -460,9 +495,13 @@ class vectara():
             payload["query"][0]["summary"] = [
                 {
                     'maxSummarizedResults': top_k,
-                    'responseLang': lang
+                    'responseLang': lang, 
+                    'factualConsistencyScore': True 
                 }
             ] 
+
+        if metadata_filter != "": # add metadata filter
+            payload["query"][0]["corpusKey"][0]["metadataFilter"] = metadata_filter
 
         payload = json.dumps(payload)
 
@@ -479,9 +518,11 @@ class vectara():
 
         response = requests.post(url, headers=headers, data=payload)
 
+        print (response.json()) 
+
         if response.status_code != 200:
             print(f"Vectara server returned {response.status_code} error. ")
-            print(response.json())
+            print(json.dumps(response.json(), indent=2))
             return {}
         else:
             print("Query successful. ")
@@ -490,12 +531,12 @@ class vectara():
                 "corpus_id": corpus_id,
                 "top_k": top_k,
                 "lang": lang,
-                "score": response.json()['responseSet'][0]['summary'][0]['factualConsistency']['score'] if return_summary else None,
+                "factualConsistencyScore": response.json()['responseSet'][0]['summary'][0]['factualConsistency']['score'] if return_summary else None,
                 "raw_response": response.json(),
             }
-            if self.from_cli:
-                simple_json = post_process_query_result(response.json(), format='json')
-                print(json.dumps(simple_json, indent=2))
+            if self.from_cli or verbose:
+                simple_json = post_process_query_result(response.json(), format=print_format)
+                print(simple_json)
             else:
                 return response.json()
 
@@ -533,11 +574,48 @@ class vectara():
         self.last_result = {}
         return "Thank you for your feedback."
 
+    @funix(disable=True)
+    def upload_chunk(self, 
+            corpus_id: int,
+            chunks: List[str],
+            doc_id: str = "",
+            metadata: Dict = {},
+            verbose: bool = False):
+        """Upload chunks of text to a corpus specified by corpus_id.
+        All chunks share the same doc_id and metadata.
+        """
+        url = "https://api.vectara.io/v1/core/index"
+
+        parts = [{"text": chunk} for chunk in chunks]
+        document = {'document_id': doc_id, 'parts': parts, 'metadataJson': json.dumps(metadata)} 
+        request = {'customer_id': self.customer_id, 'corpus_id': corpus_id, 'document': document}
+
+        headers = {}
+            
+        if self.api_key:
+            headers["x-api-key"] = self.api_key
+        else:
+            headers["Authorization"] = f"Bearer {self.jwt_token}"
+
+        print ("Uploading the chunks...")
+
+        response = requests.post(
+            url,
+            headers=headers, 
+            data=json.dumps(request) 
+            )
+
+        if verbose:
+            print (response.json()) 
+
+        return response.json()
+
 @funix(disable=True)
 def post_process_query_result(
     query_result: Dict,
     format: Literal['json', 'markdown'] = 'markdown',
-    jupyter_display: bool = False) -> Markdown | str:
+    jupyter_display: bool = False, 
+    collect_feedback: bool = False) -> Markdown | str:
     """Postprocess query results in Vectara's JSON into a simpler dictionary and a Markdown string for displaying
 
     jupyter_display: whether to display the result in a Jupyter notebook. Useful if using in Jupyter notebooks.
@@ -551,42 +629,45 @@ def post_process_query_result(
 
     try: 
         summary = answers['summary'][0]['text']
-        score = answers['summary'][0]['factualConsistency']['score']
+        factualConsistencyScore = answers['summary'][0]['factualConsistency']['score']
     except IndexError:
         summary = "No summary available."
-        score = "N/A"
+        factualConsistencyScore = "N/A"
 
     summary_md = '\n'.join(textwrap.wrap(summary, 100))
     md += f"""\
 ### Here is the answer
 {summary_md if format == 'markdown' else summary}
 
-Factual Consistency Score: `{score}`
+Factual Consistency Score: `{factualConsistencyScore}`
 
 ### References:
     """
 
-    simple_result = {'summary': summary, 'matches': []}
+    simple_result = {'summary': {'text': summary, 'factualConsistencyScore': factualConsistencyScore}, 'references': []}
 
     for number, answer in enumerate(answers['response']):
-        src_doc_id = answer['documentIndex']
-        src_doc_name = answers['document'][src_doc_id]['id']
+        src_doc_index = answer['documentIndex']
+        src_doc_id = answers['document'][src_doc_index]['id']
+        matchness = answer['score']
 
-        simple_result['matches'].append(
+        simple_result['references'].append(
             {
-                'src_doc_id': src_doc_id,
-                'src_doc_name': src_doc_name,
-                'text': answer['text']
+                'doc_index': src_doc_index,
+                'doc_id': src_doc_id,
+                'text': answer['text'], 
+                "matchness": matchness
             }
         )
 
         md += \
 f"""
-{number+1}. From document **{src_doc_name}** (matchness={answer['score']}):
+{number+1}. From document **{src_doc_id}** (matchness={matchness}):
   _...{md2text(answer['text'])}..._
 """
-        
-    md += "\n\n[Feedback](/feedback)"
+    
+    if collect_feedback:
+        md += "\n\n[Feedback](/feedback)"
 
     format = format.lower()
 
@@ -596,7 +677,8 @@ f"""
             display_markdown(md_obj)
         return md
     elif format == 'json':
-        md = '```json\n' + json.dumps(simple_result, indent=2) + "\n```"
+        # md = '```json\n' + json.dumps(simple_result, indent=2) + "\n```"
+        md = json.dumps(simple_result, indent=2)
         if jupyter_display:
-            display_markdown(Markdown(md))
-        return json.dumps(md, indent=2)
+            display_markdown(Markdown(f"```json\n{md}\n```"))
+        return md
