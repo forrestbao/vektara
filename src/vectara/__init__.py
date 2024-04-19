@@ -573,6 +573,43 @@ class vectara():
         set_global_variable("last_markdown_result", "")
         self.last_result = {}
         return "Thank you for your feedback."
+    
+    @funix(disable=True)
+    def upload_sections(self, 
+            corpus_id: int,
+            sections: List[str],
+            sections_id: List[int] = [],
+            doc_id: str = "",
+            metadata: Dict = {},
+            verbose: bool = False):
+        """Upload sections of text to a corpus specified by corpus_id.
+        All sections share the same doc_id and metadata, and have own section_id.
+        """
+        url = "https://api.vectara.io/v1/index"
+
+        sections_ = [{"text": section, "id": sections_id[index]} for index, section in enumerate(sections)]
+        document = {'document_id': doc_id, 'section': sections_, 'metadataJson': json.dumps(metadata)} 
+        request = {'customer_id': self.customer_id, 'corpus_id': corpus_id, 'document': document}
+
+        headers = {}
+            
+        if self.api_key:
+            headers["x-api-key"] = self.api_key
+        else:
+            headers["Authorization"] = f"Bearer {self.jwt_token}"
+
+        print ("Uploading the sections...")
+
+        response = requests.post(
+            url,
+            headers=headers, 
+            data=json.dumps(request) 
+            )
+
+        if verbose:
+            print (response.json()) 
+
+        return response.json()
 
     @funix(disable=True)
     def upload_chunk(self, 
