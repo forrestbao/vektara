@@ -275,6 +275,33 @@ class vectara():
 
         return None
 
+    def list_documents(self, 
+            corpus_id: int, 
+            numResults: int = 10,
+        ):
+        """List all documents in a corpus specified by corpus_id
+        """
+        url = f"{self.base_url}/v1/list-documents"
+
+        headers = {}
+            
+        if self.api_key:
+            headers["x-api-key"] = self.api_key
+        else:
+            headers["Authorization"] = f"Bearer {self.jwt_token}"
+
+        payload = {
+            "corpusId": corpus_id
+        }
+
+        response = requests.post(
+            url,
+            headers=headers, 
+            data=json.dumps(payload) 
+            )
+        
+        return response.json() 
+
     @funix_method(disable=True)
     def upload(self, 
             corpus_id: int, 
@@ -534,7 +561,7 @@ class vectara():
                 "factualConsistencyScore": response.json()['responseSet'][0]['summary'][0]['factualConsistency']['score'] if return_summary else None,
                 "raw_response": response.json(),
             }
-            if self.from_cli or verbose:
+            if self.from_cli or not verbose:
                 simple_json = post_process_query_result(response.json(), format=print_format)
                 print(simple_json)
             else:
@@ -572,10 +599,64 @@ class vectara():
         con.commit()
         set_global_variable("last_markdown_result", "")
         self.last_result = {}
-        return "Thank you for your feedback."
+        return "Thank you for your feedback."       
 
     @funix(disable=True)
-    def upload_chunk(self, 
+    def upload_sections(self, 
+            corpus_id: int,
+            sections: List[str],
+            section_ids: List[int] = [],
+            section_metadata: List[Dict] = [],
+            doc_id: str = "",
+            doc_metadata: Dict = {},
+            verbose: bool = False):
+        """Upload a list of texts as sections of one document to a corpus specified by corpus_id.
+        The document can have optionally a doc_id and document metadata.
+        Each section can optionally have a section_id and section metadata.
+        """
+
+        url = f"{self.base_url}/v1/index"
+
+        sections_ = [{"text": section} for section in sections]
+
+        if len(section_ids) > 0:
+            assert len(section_ids) == len(sections), "Length of section_ids must be the same as the number of sections."
+            sections_ = [d | {"section_id": section_id} for d, section_id in zip(sections_, section_ids)]
+
+        if len(section_metadata) > 0:
+            assert len(section_metadata) == len(sections), "Length of section_metadata must be the same as the number of sections."
+            sections_ = [d | {"metadataJson": json.dumps(metadata)} for d, metadata in zip(sections_, section_metadata)]
+
+        document = {'document_id': doc_id, 'section': sections_}
+        if doc_id != "":
+            document["document_id"] = doc_id
+        if doc_metadata != {}:
+            document["metadataJson"] = json.dumps(doc_metadata)
+
+        request = {'customer_id': self.customer_id, 'corpus_id': corpus_id, 'document': document}
+
+        headers = {}
+            
+        if self.api_key:
+            headers["x-api-key"] = self.api_key
+        else:
+            headers["Authorization"] = f"Bearer {self.jwt_token}"
+
+        print ("Uploading the sections...")
+
+        response = requests.post(
+            url,
+            headers=headers, 
+            data=json.dumps(request)
+            )
+
+        if verbose:
+            print (response.json()) 
+
+        return response.json()
+
+    @funix(disable=True)
+    def upload_chunks(self, 
             corpus_id: int,
             chunks: List[str],
             doc_id: str = "",
