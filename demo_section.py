@@ -1,26 +1,29 @@
 #%% 
 from vectara import vectara
 
-
 client = vectara()
 
-corpus_id = 6
+corpus_id =12
 client.reset_corpus(corpus_id)
 
-
-text_list = [
+sections = [
     "I am having beer",
     "I am watching TV"
 ]
-id_list = [1, 2]
 
-client.upload_sections(
+section_ids = [100, 200]
+
+section_metadata = [{"raw_text": text} for text in sections]
+
+doc_metadata = {"raw_doc": " ".join(sections)}
+
+r = client.upload_sections(
     corpus_id, 
-    text_list, 
-    id_list,
-    doc_id="source", 
+    sections=sections, 
+    section_ids = section_ids,
+    section_metadata=section_metadata, 
+    doc_id="life",
+    doc_metadata=doc_metadata, 
     verbose=True)
 
-client.query(corpus_id, "What do I own?", print_format= 'json', verbose=True, metadata_filter="doc.id='source'")
-
-# %%
+client.query(corpus_id, "What am I doing?", print_format= 'json', verbose=True)
