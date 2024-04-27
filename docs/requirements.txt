@@ -1,3 +1,10 @@
 sphinx_rtd_theme 
 sphinxcontrib-napoleon
 python-dotenv
+markdown
+bs4
+textwrap3
+requests
+tqdm
+IPython
+fire
