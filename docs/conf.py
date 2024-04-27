@@ -6,6 +6,9 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+import os, sys
+sys.path.insert(0, os.path.abspath('../src'))
+
 project = 'Unofficial Vectara Python SDK/CLI/GUI'
 copyright = '2024, Forrest Sheng Bao, Yazawazi, HBJ, and Rogger Luo'
 author = 'Forrest Sheng Bao, Yazawazi, HBJ, and Rogger Luo'
