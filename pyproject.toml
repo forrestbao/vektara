@@ -1,6 +1,6 @@
 [project]
 name = "vectara"
-version = "0.0.2"
+version = "0.0.3"
 readme = "README.md"
 authors = [
     { name = "Forrest Sheng Bao", email = "forrest@vectara.com" }
