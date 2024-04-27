@@ -10,6 +10,6 @@ client.upload(corpus_id, ['test_data/consitution_united_states.txt', 'test_data/
 
 client.upload(corpus_id, "test_data") # upload all files in a folder, no recursion 
 
-client.query(corpus_id, "What if the government infringes your rights?", print_format= 'json', verbose=True) # query the corpus
+client.query(corpus_id, "What if the government infringes your rights?", print_format= 'markdown', verbose=True) # query the corpus
 
 client.reset_corpus(corpus_id) # delete all documents in the corpus, if needed. 

@@ -22,9 +22,9 @@ client.upload(
 
 client.query(
     corpus_id, 
-    "What if the government infringes protect your rights?", 
+    "What if the government fails to protect your rights?", 
     metadata_filter="doc.id = 'we the people'", 
-    top_k=3, print_format='json', verbose=True)
+    top_k=3, print_format='json')
 
 
 client.upload(
@@ -46,7 +46,6 @@ client.query(
     corpus_id, 
     "What if the government infringes your rights?", 
     top_k=3, 
-    metadata_filter="doc.id = 'the war' or doc.id='the beginning'", print_format='json', verbose=True)
+    metadata_filter="doc.id = 'the war' or doc.id='the beginning'", print_format='json')
 
-
-# client.reset_corpus(corpus_id) # delete all documents in the corpus
+client.reset_corpus(corpus_id) # delete all documents in the corpus

@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>vectara package &mdash; Unofficial Vectara Python SDK/CLI/GUI 0.0.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=47de8214"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Unofficial Vectara Python SDK/CLI/GUI
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">vectara package</a><ul>
+<li><a class="reference internal" href="#module-vectara">Module contents</a><ul>
+<li><a class="reference internal" href="#vectara.md2text"><code class="docutils literal notranslate"><span class="pre">md2text()</span></code></a></li>
+<li><a class="reference internal" href="#vectara.vectara"><code class="docutils literal notranslate"><span class="pre">vectara</span></code></a><ul>
+<li><a class="reference internal" href="#vectara.vectara.acquire_jwt_token"><code class="docutils literal notranslate"><span class="pre">vectara.acquire_jwt_token()</span></code></a></li>
+<li><a class="reference internal" href="#vectara.vectara.create_corpus"><code class="docutils literal notranslate"><span class="pre">vectara.create_corpus()</span></code></a></li>
+<li><a class="reference internal" href="#vectara.vectara.reset_corpus"><code class="docutils literal notranslate"><span class="pre">vectara.reset_corpus()</span></code></a></li>
+<li><a class="reference internal" href="#vectara.vectara.list_documents"><code class="docutils literal notranslate"><span class="pre">vectara.list_documents()</span></code></a></li>
+<li><a class="reference internal" href="#vectara.vectara.upload"><code class="docutils literal notranslate"><span class="pre">vectara.upload()</span></code></a></li>
+<li><a class="reference internal" href="#vectara.vectara.upload_file_from_funix"><code class="docutils literal notranslate"><span class="pre">vectara.upload_file_from_funix()</span></code></a></li>
+<li><a class="reference internal" href="#vectara.vectara.upload_file"><code class="docutils literal notranslate"><span class="pre">vectara.upload_file()</span></code></a></li>
+<li><a class="reference internal" href="#vectara.vectara.upload_files"><code class="docutils literal notranslate"><span class="pre">vectara.upload_files()</span></code></a></li>
+<li><a class="reference internal" href="#vectara.vectara.upload_folder"><code class="docutils literal notranslate"><span class="pre">vectara.upload_folder()</span></code></a></li>
+<li><a class="reference internal" href="#vectara.vectara.query"><code class="docutils literal notranslate"><span class="pre">vectara.query()</span></code></a></li>
+<li><a class="reference internal" href="#vectara.vectara.query_funix"><code class="docutils literal notranslate"><span class="pre">vectara.query_funix()</span></code></a></li>
+<li><a class="reference internal" href="#vectara.vectara.feedback"><code class="docutils literal notranslate"><span class="pre">vectara.feedback()</span></code></a></li>
+<li><a class="reference internal" href="#vectara.vectara.create_document_from_sections"><code class="docutils literal notranslate"><span class="pre">vectara.create_document_from_sections()</span></code></a></li>
+<li><a class="reference internal" href="#vectara.vectara.create_document_from_chunks"><code class="docutils literal notranslate"><span class="pre">vectara.create_document_from_chunks()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#vectara.post_process_query_result"><code class="docutils literal notranslate"><span class="pre">post_process_query_result()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Unofficial Vectara Python SDK/CLI/GUI</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">vectara package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/vectara.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="vectara-package">
+<h1>vectara package<a class="headerlink" href="#vectara-package" title="Link to this heading"></a></h1>
+<section id="module-vectara">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-vectara" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="vectara.md2text">
+<span class="sig-prename descclassname"><span class="pre">vectara.</span></span><span class="sig-name descname"><span class="pre">md2text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">md</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectara.md2text" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="vectara.vectara">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vectara.</span></span><span class="sig-name descname"><span class="pre">vectara</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'https://api.vectara.io'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">customer_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_secret</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_cli</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_oauth2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectara.vectara" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="vectara.vectara.acquire_jwt_token">
+<span class="sig-name descname"><span class="pre">acquire_jwt_token</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vectara.vectara.acquire_jwt_token" title="Link to this definition"></a></dt>
+<dd><p>Acquire/renew a JWT token. For OAuth2 only. The JWT token expires after 30 minutes. If you use OAuth2, you need to call this method every 30 minutes to get a new JWT token.</p>
+<p>No arguments needed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vectara.vectara.create_corpus">
+<span class="sig-name descname"><span class="pre">create_corpus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corpus_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corpus_description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span></span><a class="headerlink" href="#vectara.vectara.create_corpus" title="Link to this definition"></a></dt>
+<dd><p>Create a corpus, given a <code class="docutils literal notranslate"><span class="pre">corpus_name</span></code> and an optional <code class="docutils literal notranslate"><span class="pre">corpus_description</span></code>.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">corpus_id</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_corpus</span><span class="p">(</span><span class="s1">&#39;America, the Beautiful&#39;</span><span class="p">)</span> <span class="c1"># create a new corpus called &#39;America, the Beautiful&#39;</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>corpus_name</strong> (<em>str</em>) – The name of the corpus being created.</p></li>
+<li><p><strong>corpus_description</strong> (<em>str</em>) – (Optional) The descrption to a corpus.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The ID of the newly created corpus. If the creation fails, return the  response as a nested Python dict for further inspection.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int | dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vectara.vectara.reset_corpus">
+<span class="sig-name descname"><span class="pre">reset_corpus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corpus_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span></span><a class="headerlink" href="#vectara.vectara.reset_corpus" title="Link to this definition"></a></dt>
+<dd><p>Reset a corpus specified by <code class="docutils literal notranslate"><span class="pre">corpus_id</span></code>.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">vectara</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span> <span class="o">=</span> <span class="n">vectara</span><span class="o">.</span><span class="n">vectara</span><span class="p">()</span> <span class="c1"># get default credentials from environment variables</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">reset_corpus</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span> <span class="c1"># reset the corpus with ID 11</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>corpus_id</strong> (<em>int</em>) – the ID of the corpus to reset</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>1 if the reset is successful. Else, the response as a nested Python dict for further inspection.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int | str</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p><a class="reference external" href="https://docs.vectara.com/docs/rest-api/reset-corpus">https://docs.vectara.com/docs/rest-api/reset-corpus</a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vectara.vectara.list_documents">
+<span class="sig-name descname"><span class="pre">list_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corpus_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numResults</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#vectara.vectara.list_documents" title="Link to this definition"></a></dt>
+<dd><p>List documents in a corpus specified by <code class="docutils literal notranslate"><span class="pre">corpus_id</span></code> up to the number of the optional parameter <code class="docutils literal notranslate"><span class="pre">numResults</span></code>.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">vectara</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span> <span class="o">=</span> <span class="n">vectara</span><span class="o">.</span><span class="n">vectara</span><span class="p">()</span> <span class="c1"># get default credentials from environment variables</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">list_documents</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="n">numResults</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span> <span class="c1"># list the first 5 documents in the corpus with ID 11</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>corpus_id</strong> (<em>int</em>) – the ID of the corpus to list documents from</p></li>
+<li><p><strong>numResults</strong> (<em>int</em>) – the number of documents to list. The max value is 1,000.  Default is 10.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A nested Python dict containing the list of documents in the corpus.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p><a class="reference external" href="https://docs.vectara.com/docs/rest-api/list-documents">https://docs.vectara.com/docs/rest-api/list-documents</a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vectara.vectara.upload">
+<span class="sig-name descname"><span class="pre">upload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corpus_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#vectara.vectara.upload" title="Link to this definition"></a></dt>
+<dd><p>Upload a file, a list of files, or files in a folder, to a corpus specified by <code class="docutils literal notranslate"><span class="pre">corpus_id</span></code></p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span> <span class="o">=</span> <span class="n">vectara</span><span class="o">.</span><span class="n">vectara</span><span class="p">()</span> <span class="c1"># get default credentials from environment variables</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">corpus_id</span><span class="p">,</span> <span class="s1">&#39;test_data/consitution_united_states.txt&#39;</span><span class="p">)</span> <span class="c1"># upload one file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">corpus_id</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;test_data/consitution_united_states.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;test_data/declaration_of_independence.txt&#39;</span><span class="p">])</span>  <span class="c1"># upload a list of files</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">corpus_id</span><span class="p">,</span> <span class="s2">&quot;test_data&quot;</span><span class="p">)</span> <span class="c1"># upload all files in a folder, no recursion</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span>
+<span class="go">        corpus_id = 11,</span>
+<span class="go">        source = &#39;test_data/consitution_united_states.txt&#39;,</span>
+<span class="go">        doc_id=&#39;we the people&#39;,</span>
+<span class="go">        metadata={</span>
+<span class="go">            &#39;number of amendements&#39;: &#39;27&#39;,</span>
+<span class="go">            &#39;Author&#39;: &#39;Representatives from 13 states&#39;,</span>
+<span class="go">            &#39;number of words&#39;: 4543</span>
+<span class="go">            },</span>
+<span class="go">        verbose=True</span>
+<span class="go">    )</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span>
+<span class="go">        corpus_id = 11,</span>
+<span class="go">        source = [&#39;test_data/consitution_united_states.txt&#39;, &#39;test_data/declaration_of_independence.txt&#39;, &#39;test_data/gettysburg_address.txt&#39;],</span>
+<span class="go">        doc_id=[</span>
+<span class="go">            &#39;the rights&#39;,</span>
+<span class="go">            &#39;the beginning&#39;,</span>
+<span class="go">            &#39;the war&#39;</span>
+<span class="go">        ],</span>
+<span class="go">        metadata=[</span>
+<span class="go">            {&#39;Last update&#39;: &#39;May 5, 1992&#39;, &#39;Author&#39;: &quot;U.S. Congress&quot;},</span>
+<span class="go">            {&#39;Location&#39;: &#39;Philadelphia, PA&#39;, &#39;Author&#39;: &quot;Thomas Jefferson et al.&quot;}, # Declaration of Independence</span>
+<span class="go">            {&#39;Location&#39;: &#39;Gettysburg, PA&#39;, &#39;Author&#39;: &#39;Abraham Lincoln&#39;, &#39;Date&#39;: &#39;November 19, 1863&#39;} # Gettysburg Address</span>
+<span class="go">        ]</span>
+<span class="go">    )</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>corpus_id</strong> (<em>int</em>) – the corpus ID to upload to</p></li>
+<li><p><strong>source</strong> (<em>str</em><em> | </em><em>List</em><em>[</em><em>str</em><em>]</em>) – the source to upload, a file path, a folder path, or a list of file paths</p></li>
+<li><p><strong>doc_id</strong> (<em>str</em><em> or </em><em>list</em><em> of </em><em>str</em>) – (Optional) alphanumeric ID(s) for referring to the document(s) later. If a string, then it only works when source is a single file. If a list of strings, then each element of <cite>doc_id</cite> is the document ID for each file in the request. Default is None.</p></li>
+<li><p><strong>metadata</strong> (<em>dict</em><em> or </em><em>list</em><em> of </em><em>dict</em>) – (Optional) metadata for file(s). If a dict, then the same metadata will be used for all files in the request. If a list of dict, then each element dict is the metadata for each file in the request – in this case, it is not required that all documents to have the same fields in their metadata. Default is an empty dict.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – (Optional) whether to print the detailed information. Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The response from the Vectara server. If a single file is uploaded, then a dict is returned. If multiple files are uploaded (when <code class="docutils literal notranslate"><span class="pre">source</span></code> is a list of filepaths or a folder), then a list of dict is returned.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict | List[dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vectara.vectara.upload_file_from_funix">
+<span class="sig-name descname"><span class="pre">upload_file_from_funix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corpus_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filebuf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BytesFile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Markdown</span></span></span><a class="headerlink" href="#vectara.vectara.upload_file_from_funix" title="Link to this definition"></a></dt>
+<dd><p>Drag and drop a file to Funix frontend to add it to a corpus specified by corpus_id</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vectara.vectara.upload_file">
+<span class="sig-name descname"><span class="pre">upload_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corpus_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#vectara.vectara.upload_file" title="Link to this definition"></a></dt>
+<dd><p>Upload a file from local storage to a corpus specified by corpus_id</p>
+<dl class="simple">
+<dt>params:</dt><dd><p>corpus_id: the corpus ID to upload to
+filepath: path to file
+doc_id: a alphanumeric ID for referring to the document later</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vectara.vectara.upload_files">
+<span class="sig-name descname"><span class="pre">upload_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corpus_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filepaths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#vectara.vectara.upload_files" title="Link to this definition"></a></dt>
+<dd><p>Upload a list of files from local storage</p>
+<dl class="simple">
+<dt>params:</dt><dd><p>filepaths: paths to files
+doc_ids: alphanumeric IDs for referring to the documents later
+metadata: metadata for files. If a dict, then the same metadata will be used for all files in the request. If a list of dict, then each element is the metadata for each file in the request.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vectara.vectara.upload_folder">
+<span class="sig-name descname"><span class="pre">upload_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corpus_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dirpath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#vectara.vectara.upload_folder" title="Link to this definition"></a></dt>
+<dd><p>Upload all files from a directory</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepaths</strong> (<em>str</em>) – paths to files</p></li>
+<li><p><strong>doc_ids</strong> (<em>str</em>) – alphanumeric IDs for referring to the documents later</p></li>
+<li><p><strong>metadata</strong> (<em>dict</em><em> or </em><em>list</em><em> of </em><em>dict</em>) – metadata for files. If a dict, then the same metadata will be used for all files in the request. If a list of dict, then each element is the metadata for each file in the request.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vectara.vectara.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corpus_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lang</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contextConfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_summary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'json'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'markdown'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#vectara.vectara.query" title="Link to this definition"></a></dt>
+<dd><p>Make a query to a corpus at Vectara</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">vectara</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span> <span class="o">=</span> <span class="n">vectara</span><span class="o">.</span><span class="n">vectara</span><span class="p">()</span> <span class="c1"># get default credentials from environment variables</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+<span class="go">        corpus_id,</span>
+<span class="go">        &quot;What if the government fails to protect your rights?&quot;,</span>
+<span class="go">        metadata_filter=&quot;doc.id = &#39;we the people&#39;&quot;,</span>
+<span class="go">        top_k=3,</span>
+<span class="go">        print_format=&#39;json&#39;,</span>
+<span class="go">        verbose=True</span>
+<span class="go">    )</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>corpus_id</strong> (<em>int</em>) – the corpus ID to send the query to</p></li>
+<li><p><strong>query</strong> (<em>str</em>) – the query (question, search terms) to ask</p></li>
+<li><p><strong>top_k</strong> (<em>int</em>) – the number of most matching results to return and to summarize</p></li>
+<li><p><strong>lang</strong> (<em>str</em>) – the ISO 639-1 or ISO 639-3 language code for the language in which a summary is generated. Default: ‘auto’, letting the Vectara platform to determine.</p></li>
+<li><p><strong>contextConfig</strong> (<em>dict</em>) – See <a class="reference external" href="https://docs.vectara.com/docs/rest-api/query">https://docs.vectara.com/docs/rest-api/query</a>? for details</p></li>
+<li><p><strong>return_summary</strong> (<em>bool</em>) – whether to return a summary of the top_k results</p></li>
+<li><p><strong>metadata_filter</strong> (<em>str</em>) – Vectara’s metadata filter to narrow down the search results. See <a class="reference external" href="https://docs.vectara.com/docs/learn/metadata-search-filtering/filter-overview">https://docs.vectara.com/docs/learn/metadata-search-filtering/filter-overview</a> and for details.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The response from the Vectara server.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vectara.vectara.query_funix">
+<span class="sig-name descname"><span class="pre">query_funix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corpus_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lang</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'auto'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Markdown</span></span></span><a class="headerlink" href="#vectara.vectara.query_funix" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vectara.vectara.feedback">
+<span class="sig-name descname"><span class="pre">feedback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">consistent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'Yes'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'No'</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#vectara.vectara.feedback" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vectara.vectara.create_document_from_sections">
+<span class="sig-name descname"><span class="pre">create_document_from_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corpus_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sections</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#vectara.vectara.create_document_from_sections" title="Link to this definition"></a></dt>
+<dd><p>Create a document in a corpus specified by <code class="docutils literal notranslate"><span class="pre">corpus_id</span></code> from a list of texts, each of which is a section of the document.</p>
+<p>This is for experts. A document is a collection of sections, each of which is a collection of texts.</p>
+<p>The <strong>difference</strong> between this method and <code class="docutils literal notranslate"><span class="pre">create_document_from_chunks</span></code> is that in this methods, you cannot control the chunking of texts but you can hierarchically organize texts (although currently only one level of hierarchy is supported in this SDK).</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">vectara</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span> <span class="o">=</span> <span class="n">vectara</span><span class="o">.</span><span class="n">vectara</span><span class="p">()</span> <span class="c1"># get default credentials from environment variables</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">add_sections</span><span class="p">(</span>
+<span class="go">        corpus_id = 11,</span>
+<span class="go">        sections = [</span>
+<span class="go">            &quot;I have one TV. &quot;,</span>
+<span class="go">            &quot;Ich habe einen TV.&quot;</span>
+<span class="go">        ],</span>
+<span class="go">        section_ids = [100, 200],</span>
+<span class="go">        section_metadata = [</span>
+<span class="go">            {&quot;language&quot;: &quot;English&quot;},</span>
+<span class="go">            {&quot;language&quot;: &quot;German&quot;}</span>
+<span class="go">        ],</span>
+<span class="go">        doc_id = &quot;my apartment&quot;,</span>
+<span class="go">        doc_metadata = {&quot;genre&quot;: &quot;life&quot;},</span>
+<span class="go">        verbose = True</span>
+<span class="go">    )</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>corpus_id</strong> (<em>int</em>) – the corpus ID to upload to</p></li>
+<li><p><strong>sections</strong> (<em>list</em><em> of </em><em>str</em>) – A section is a concept in document retrieval system. It is the sub-unit of a document. Here multiple sections are being added into a document at once.</p></li>
+<li><p><strong>section_ids</strong> (<em>list</em><em> of </em><em>int</em>) – (Optional) The section IDs for each section. If not provided, the section IDs will be generated by Vectara.</p></li>
+<li><p><strong>section_metadata</strong> (<em>list</em><em> of </em><em>dict</em>) – (Optional) The metadata for each section. If provided, the metadata will be pigged back in the query result. If not provided, the metadata will be empty.</p></li>
+<li><p><strong>doc_id</strong> (<em>str</em>) – (Optional) The document ID for the document. If not provided, the document will just not have an ID. Note the ID is not a number. It is a string.</p></li>
+<li><p><strong>doc_metadata</strong> (<em>dict</em>) – (Optional) The metadata for the document. If provided, the metadata will be piggied back in the query result. If not provided, the metadata will be empty.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – (Optional) Whether to print the detailed information. Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The response from the Vectara server.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ol class="arabic simple">
+<li><p>Vectara does not allow updating a document. If you want to update a document, you need to delete the document first and then re-add content into it.</p></li>
+<li><p>A section ID must be positive integers. If it is 0, then it will not show up in the metadata of the query return.</p></li>
+</ol>
+<section id="limitations">
+<h3>Limitations<a class="headerlink" href="#limitations" title="Link to this heading"></a></h3>
+<p>Vectara supports hierarchical documents, thus a section can recursively be a collection of sections. However, this method only support one level of hierarchy. We will add the support for more levels in the future.</p>
+<p class="rubric">References</p>
+<p><a class="reference external" href="https://docs.vectara.com/docs/rest-api/index">https://docs.vectara.com/docs/rest-api/index</a></p>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vectara.vectara.create_document_from_chunks">
+<span class="sig-name descname"><span class="pre">create_document_from_chunks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corpus_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#vectara.vectara.create_document_from_chunks" title="Link to this definition"></a></dt>
+<dd><p>Create a document in a corpus specified by <code class="docutils literal notranslate"><span class="pre">corpus_id</span></code> from a list of texts, each of which is a chunk of the document.</p>
+<p>This is for experts. A document is a collection of chunks. Each chunk is a unit in retrieval.</p>
+<p>The difference between this method and <code class="docutils literal notranslate"><span class="pre">create_document_from_sections</span></code> is that in this method, you can control the chunking of texts – a chunk you upload is the retrieval unit – and all chunks are at the same level, while in <code class="docutils literal notranslate"><span class="pre">create_document_from_sections</span></code>, you cannot control the chunking of texts and the sections can be hierarchical (although currently only one level of hierarchy is supported in this SDK).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>corpus_id</strong> (<em>int</em>) – the corpus ID in which to create a document</p></li>
+<li><p><strong>chunks</strong> (<em>list</em><em> of </em><em>str</em>) – the chunks of the document</p></li>
+<li><p><strong>chunk_metadata</strong> (<em>list</em><em> of </em><em>dict</em>) – (Optional) the metadata for each chunk. If provided, the metadata will be pigged back in the query result. If not provided, the metadata will be empty.</p></li>
+<li><p><strong>doc_id</strong> (<em>str</em>) – (Optional) the document ID for the document. If not provided, the document will just not have an ID. Note the ID is not a number. It is a string.</p></li>
+<li><p><strong>doc_metadata</strong> (<em>dict</em>) – (Optional) the metadata for the document. If provided, the metadata will be piggied back in the query result. If not provided, the metadata will be empty.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – (Optional) whether to print the detailed information. Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the response from the Vectara server.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vectara.post_process_query_result">
+<span class="sig-prename descclassname"><span class="pre">vectara.</span></span><span class="sig-name descname"><span class="pre">post_process_query_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'json'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'markdown'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'markdown'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jupyter_display</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collect_feedback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Markdown</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></span><a class="headerlink" href="#vectara.post_process_query_result" title="Link to this definition"></a></dt>
+<dd><p>Postprocess query results in Vectara’s JSON into a simpler dictionary and a Markdown string for displaying</p>
+<p>jupyter_display: whether to display the result in a Jupyter notebook. Useful if using in Jupyter notebooks.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Forrest Sheng Bao, Yazawazi, HBJ, and Rogger Luo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

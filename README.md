@@ -5,7 +5,7 @@ It supports major features of Vectara's RAG platform for you to build your own s
 Additional features:
 
 * It expands the upload function to allow you to upload a list of files or all files under a directory in one function call.
-* Renders query results in beautiful Markdown printout (see `demo.ipynb`).
+* Renders query results in beautiful Markdown printout (see `demo_simple.ipynb`).
 * It supports logging user feedback from the GUI in a local SQLite database for evaluating the quality of search and RAG. 
 
 **If you like this SDK/CLI/GUI, give us a star on Github!**
@@ -49,27 +49,26 @@ Alternatively, you can pass in your credentials as arguments when initializing t
 
 ### Using the Python SDK 
 
-Try the Jupyter notebook `demo.ipynb`, the script `demo.py`, or read the docstring.
+Try the Jupyter notebook `demo_simple.ipynb`, the script `demo_simple.py`, or read the [reference manual](https://vectara-python-cli.readthedocs.io/en/latest/).
 
 ```python
-from vectara import vectara, post_process_query_result
+import vectara
 
-client = vectara() # get credentials from environment variables 
+client = vectara.vectara() # get credentials from environment variables 
 
 corpus_id = client.create_corpus('my knowledge base')
+client.upload(corpus_id, './test_data') # upload all files under the directory `test_data` to the corpus
 
-client.upload(corpus_id, 'one_file.pdf', description='A scientific paper')  # add one file to the corpus 
-client.upload(corpus_id, 'a_folder_of_documents') # add all files under a folder to the corpus
-client.upload(corpus_id, ['README.md', 'demo.py'], description=['README', 'demo code']) # add a list of files to the corpus
+client.query(corpus_id, 'What if the government becomes unjust?', top_k=5, print_format='json') # getting an answer for the query
 
-r = client.query(corpus_id, 'How to set credentials? ', top_k=5) # query the corpus for top 5 answers, return a JSON string 
-print (post_process_query_result(r)) # post process the query result to get a list of answers
-
-r = client.query(corpus_id, 'How to set credentials? ', top_k=5, return_summary=False) # query the corpus for top 5 answers, no summary, just search, return a JSON string
-print (post_process_query_result(r)) # post process the query result to get a list of answers
+client.query(corpus_id, 'Who can run for president?', top_k=5, return_summary=False, print_format='json') # Google-style search results without the summary
 
 client.reset_corpus(corpus_id) # delete all documents in the corpus
 ```
+
+The SDk gives you a lot of power to control how data is uploaded and queried. For advanced usage, please see `demo_advanced.py` and `demo_chunk.py`. 
+
+Additional features support logging user feedback from the GUI in a local SQLite database for evaluating the quality of search and RAG. 
 
 ### Command line
 

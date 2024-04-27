@@ -17,7 +17,7 @@ section_metadata = [{"raw_text": text} for text in sections]
 
 doc_metadata = {"raw_doc": " ".join(sections)}
 
-r = client.upload_sections(
+r = client.add_sections(
     corpus_id, 
     sections=sections, 
     section_ids = section_ids,
