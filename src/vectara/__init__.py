@@ -3,7 +3,7 @@
 # Not officially endorsed by Vectara
 # Use at your own risk
 
-# Copyleft 2023 Forrest Sheng Bao et al. 
+# Copyleft 2023 Forrest Sheng Bao et al.
 # forrest@vectara.com
 
 
@@ -75,28 +75,28 @@ class vectara():
             }
         ]
     )
-    def __init__(self, 
-                base_url: str = "https://api.vectara.io", 
+    def __init__(self,
+                base_url: str = "https://api.vectara.io",
                 customer_id: str = None,
-                api_key: str = None, 
-                client_id: str = None, 
-                client_secret: str = None, 
-                from_cli: bool = False, 
+                api_key: str = None,
+                client_id: str = None,
+                client_secret: str = None,
+                from_cli: bool = False,
                 use_oauth2: bool = False
             ):
-        """Initialize a ``vectara``-class object. 
+        """Initialize a ``vectara``-class object.
 
         This function supports authentication with Vectara server using either OAuth2 or API Key. If using OAuth2, ``client_id`` and ``client_secret`` must be provided. If using API Key, ``api_key`` must be provided. When both OAuth2 and API credentials are provided, API Key will be used.
 
-        Following the convention set by OpenAI's API in the GenAI era, the credentials will default to those in the environment variables of the operating system. 
+        Following the convention set by OpenAI's API in the GenAI era, the credentials will default to those in the environment variables of the operating system.
 
-        Examples 
+        Examples
         ------------
         >>> import vectara
-        >>> client = vectara.vectara() # get default credentials from environment variables 
-        >>> client = vectara.vectara(api_key='abc', customer_id='123') # pass in credentials for using Personal API key 
+        >>> client = vectara.vectara() # get default credentials from environment variables
+        >>> client = vectara.vectara(api_key='abc', customer_id='123') # pass in credentials for using Personal API key
         >>> client = vectara(client_id='abc', client_secret='xyz', customer_id='123') # pass in credentials for using OAuth2
-        
+
         Parameters
         --------------
         base_url: str
@@ -110,10 +110,10 @@ class vectara():
         client_secret: str
             The client secret for OAuth2 authentication. Default to environment variable ``VECTARA_CLIENT_SECRET``. To get an OAuth2 client secret, follow the instructions `here <https://docs.vectara.com/docs/console-ui/app-clients>`_ or `here <https://docs.vectara.com/docs/learn/authentication/oauth-2>`_.
         from_cli: bool
-            Whether the initialization is from a command line interface. If True, the initialization will be silent and the JWT token will be saved in a dotenv file. Default: False. 
+            Whether the initialization is from a command line interface. If True, the initialization will be silent and the JWT token will be saved in a dotenv file. Default: False.
         use_oauth2: bool
             Whether to use OAuth2 for authentication. If True, the client_id and client_secret must be provided. If False, the api_key must be provided. Default: False.
-        
+
         """
         def get_env(env: str, default: str) -> str:
             result = os.environ.get(env, default)
@@ -128,20 +128,20 @@ class vectara():
             return value.lower() in ['true', 'yes', '1']
 
         self.proxy_mode = str2bool(os.environ.get('VECTARA_PROXY_MODE', 'false'))
-        # only for LlamaKey.ai to use. 
+        # only for LlamaKey.ai to use.
 
         if base_url != "https://api.vectara.io":
             self.proxy_mode = True # force proxy mode if base_url is not the default
 
-        self.base_url = get_env('VECTARA_BASE_URL', base_url)  # must 
-        self.customer_id = get_env('VECTARA_CUSTOMER_ID', customer_id)  # must 
+        self.base_url = get_env('VECTARA_BASE_URL', base_url)  # must
+        self.customer_id = get_env('VECTARA_CUSTOMER_ID', customer_id)  # must
         client_id = os.environ.get('VECTARA_CLIENT_ID', client_id)
         client_secret = os.environ.get('VECTARA_CLIENT_SECRET', client_secret)
         self.from_cli = from_cli
 
-        self.client_id = None 
+        self.client_id = None
         self.client_secret = None
-        self.api_key = None 
+        self.api_key = None
         self.jwt_token = None
 
         api_key = os.environ.get('VECTARA_API_KEY', api_key)
@@ -149,7 +149,7 @@ class vectara():
         if use_oauth2 or is_void(api_key): # manually request to use OAuth2 or API Key is not available
             if use_oauth2:
                 print ("You chose to use OAuth2. API Key will be ingored.")
-            if is_void(api_key): 
+            if is_void(api_key):
                 print ("API Key not set. Fall back to OAuth2 for authentication.")
             assert not is_void(client_id), "OAuth2 client_id not available. Please set."
             assert not is_void(client_secret), "OAuth2 client_secret not available. Please set."
@@ -157,10 +157,10 @@ class vectara():
             self.client_secret = client_secret
             self.acquire_jwt_token()
         else: # API key is available
-            self.api_key = api_key 
+            self.api_key = api_key
             if not is_void(client_id) and not is_void(client_secret):
                 print ("Although OAuth2 credentials are available, API key will be used because it is present. To use OAuth2, either unset API key or set use_oauth2 to True to override.")
-               
+
         if not from_cli:
             print("Vectara SDK initialized. ")
 
@@ -175,9 +175,9 @@ class vectara():
         #         self.acquire_jwt_token()
         #         print ("JWT_Token set in CLI mode", self.jwt_token)
         #         dotenv.set_key(vectara_config, "VECTARA_JWT_TOKEN", self.jwt_token)
-        
+
         # question, corpus_id, top_k, lang, score, raw_return
-        
+
         self.last_result: dict = {}
 
     @funix_method(disable=True)
@@ -207,7 +207,7 @@ class vectara():
             data=payload,
             headers=headers)
 
-        try: 
+        try:
             jwt_token = response.json()["access_token"]
         except:
             print("Failed to acquire JWT token. ")
@@ -227,7 +227,7 @@ class vectara():
 
     @funix_method(title="Create corpus", print_to_web=True)
     def create_corpus(self, corpus_name: str, corpus_description: str = "") -> int | dict:
-        """Create a corpus, given a ``corpus_name`` and an optional ``corpus_description``. 
+        """Create a corpus, given a ``corpus_name`` and an optional ``corpus_description``.
 
         Examples
         ------------
@@ -238,7 +238,7 @@ class vectara():
             corpus_name: str
                 The name of the corpus being created.
             corpus_description: str
-                (Optional) The descrption to a corpus. 
+                (Optional) The descrption to a corpus.
 
         Returns
         ---------
@@ -264,7 +264,7 @@ class vectara():
             "customer-id": self.customer_id,
             # Customer ID must be there. Otherwise, error-16, "Request does not contain customer-id-bin header."
         }
-        
+
         if self.api_key:
             headers["x-api-key"] = self.api_key
         else:
@@ -299,7 +299,7 @@ class vectara():
 
         Returns
         ---------
-            int | str 
+            int | str
                 1 if the reset is successful. Else, the response as a nested Python dict for further inspection.
 
         References
@@ -322,7 +322,7 @@ class vectara():
             "customer-id": self.customer_id,
             # Customer ID must be there. Otherwise, error-16, "Request does not contain customer-id-bin header."
         }
-        
+
         if self.api_key:
             headers["x-api-key"] = self.api_key
         else:
@@ -332,14 +332,15 @@ class vectara():
 
         if response.status_code == 200:
             print(f"Resetting corpus {corpus_id} successful. ")
-            return 1 
+            return 1
         else:
             print(f"Failed resetting corpus {corpus_id}. ")
             return response.json()
 
-    def list_documents(self, 
-            corpus_id: int, 
+    def list_documents(self,
+            corpus_id: int,
             numResults: int = 10,
+            pageKey: str | None = None
         ) -> dict:
         """List documents in a corpus specified by ``corpus_id`` up to the number of the optional parameter ``numResults``.
 
@@ -355,6 +356,8 @@ class vectara():
                 the ID of the corpus to list documents from
             numResults: int
                 the number of documents to list. The max value is 1,000.  Default is 10.
+            pageKey: str
+                (Optional) the page key to get the next page of results. Default is None.
 
         Returns
         ---------
@@ -369,30 +372,34 @@ class vectara():
         url = f"{self.base_url}/v1/list-documents"
 
         headers = {}
-            
+
         if self.api_key:
             headers["x-api-key"] = self.api_key
         else:
             headers["Authorization"] = f"Bearer {self.jwt_token}"
 
         payload = {
-            "corpusId": corpus_id
+            "corpusId": corpus_id,
+            "numResults": numResults
         }
+
+        if pageKey:
+            payload["pageKey"] = pageKey
 
         response = requests.post(
             url,
-            headers=headers, 
-            data=json.dumps(payload) 
+            headers=headers,
+            data=json.dumps(payload)
             )
-        
-        return response.json() 
+
+        return response.json()
 
     @funix_method(disable=True)
-    def upload(self, 
-            corpus_id: int, 
-            source: str | List[str], 
-            doc_id: str | List[str] = None, 
-            metadata: Dict | List[Dict]= {}, 
+    def upload(self,
+            corpus_id: int,
+            source: str | List[str],
+            doc_id: str | List[str] = None,
+            metadata: Dict | List[Dict]= {},
             verbose: bool = False
         ) -> dict | List[dict]:
         """Upload a file, a list of files, or files in a folder, to a corpus specified by ``corpus_id``
@@ -400,28 +407,28 @@ class vectara():
         Examples
         ------------
         >>> client = vectara.vectara() # get default credentials from environment variables
-        >>> client.upload(corpus_id, 'test_data/consitution_united_states.txt') # upload one file 
-        >>> client.upload(corpus_id, ['test_data/consitution_united_states.txt', 'test_data/declaration_of_independence.txt'])  # upload a list of files 
-        >>> client.upload(corpus_id, "test_data") # upload all files in a folder, no recursion 
+        >>> client.upload(corpus_id, 'test_data/consitution_united_states.txt') # upload one file
+        >>> client.upload(corpus_id, ['test_data/consitution_united_states.txt', 'test_data/declaration_of_independence.txt'])  # upload a list of files
+        >>> client.upload(corpus_id, "test_data") # upload all files in a folder, no recursion
         >>> client.upload(
-                corpus_id = 11, 
-                source = 'test_data/consitution_united_states.txt', 
-                doc_id='we the people', 
+                corpus_id = 11,
+                source = 'test_data/consitution_united_states.txt',
+                doc_id='we the people',
                 metadata={
-                    'number of amendements': '27', 
-                    'Author': 'Representatives from 13 states', 
+                    'number of amendements': '27',
+                    'Author': 'Representatives from 13 states',
                     'number of words': 4543
-                    }, 
+                    },
                 verbose=True
             )
         >>> client.upload(
-                corpus_id = 11, 
-                source = ['test_data/consitution_united_states.txt', 'test_data/declaration_of_independence.txt', 'test_data/gettysburg_address.txt'], 
+                corpus_id = 11,
+                source = ['test_data/consitution_united_states.txt', 'test_data/declaration_of_independence.txt', 'test_data/gettysburg_address.txt'],
                 doc_id=[
-                    'the rights', 
-                    'the beginning', 
+                    'the rights',
+                    'the beginning',
                     'the war'
-                ], 
+                ],
                 metadata=[
                     {'Last update': 'May 5, 1992', 'Author': "U.S. Congress"},
                     {'Location': 'Philadelphia, PA', 'Author': "Thomas Jefferson et al."}, # Declaration of Independence
@@ -431,12 +438,12 @@ class vectara():
 
         Parameters
         ------------
-            corpus_id: int 
+            corpus_id: int
                 the corpus ID to upload to
-            source: str | List[str] 
+            source: str | List[str]
                 the source to upload, a file path, a folder path, or a list of file paths
             doc_id: str or list of str
-                (Optional) alphanumeric ID(s) for referring to the document(s) later. If a string, then it only works when source is a single file. If a list of strings, then each element of `doc_id` is the document ID for each file in the request. Default is None. 
+                (Optional) alphanumeric ID(s) for referring to the document(s) later. If a string, then it only works when source is a single file. If a list of strings, then each element of `doc_id` is the document ID for each file in the request. Default is None.
             metadata: dict or list of dict
                 (Optional) metadata for file(s). If a dict, then the same metadata will be used for all files in the request. If a list of dict, then each element dict is the metadata for each file in the request -- in this case, it is not required that all documents to have the same fields in their metadata. Default is an empty dict.
             verbose: bool
@@ -463,7 +470,7 @@ class vectara():
             r = self.upload_files(corpus_id, source, doc_ids=doc_id, metadata=metadata, verbose=verbose)
         else:
             print(f"Invalid source {source} ")
-            exit() 
+            exit()
         return r
 
     @funix_method(title="Upload file")
@@ -476,12 +483,12 @@ class vectara():
             doc_id = "A file uploaded via Funix"
 
         file_payload = {
-            "file": (doc_id, io.BytesIO(filebuf), 'application/octet-stream'), 
+            "file": (doc_id, io.BytesIO(filebuf), 'application/octet-stream'),
             "doc_metadata": (None, json.dumps(metadata), 'application/json')
         }
-       
+
         headers = {}
-        
+
         if self.api_key:
             headers["x-api-key"] = self.api_key
         else:
@@ -497,11 +504,11 @@ class vectara():
 
         if response.status_code == 200:
             if verbose:
-                return "### **Success.** " + f"```{response.json()}```" 
-            else: 
+                return "### **Success.** " + f"```{response.json()}```"
+            else:
                 return "### **Success.** "
         else:
-            return "### **Success.** " + f"```{response.json()}```" 
+            return "### **Success.** " + f"```{response.json()}```"
 
     @funix_method(disable=True)
     def upload_file(self, corpus_id: int, filepath: str, doc_id: str = "", metadata: Dict = {}, verbose: bool = False) -> Dict:
@@ -521,7 +528,7 @@ class vectara():
             doc_id = os.path.basename(filepath)
 
         file_payload = {
-            "file": (doc_id, open(filepath, 'rb'), 'application/octet-stream'), 
+            "file": (doc_id, open(filepath, 'rb'), 'application/octet-stream'),
             "doc_metadata": (None, json.dumps(metadata), 'application/json')
         }
 
@@ -570,29 +577,29 @@ class vectara():
         if isinstance(metadata, dict):
             print ("metadata is a dict. Duplicating it for all files.")
             metadata = [metadata] * len(filepaths)
-        else: 
-            assert len(metadata) == len(filepaths), "Length of metadata must be the same as the number of files."        
+        else:
+            assert len(metadata) == len(filepaths), "Length of metadata must be the same as the number of files."
 
-        responses = [] 
+        responses = []
         for doc_id, metadata, filepath in (
-                pbar := tqdm(zip(doc_ids, metadata, filepaths), 
-                total=len(filepaths), 
+                pbar := tqdm(zip(doc_ids, metadata, filepaths),
+                total=len(filepaths),
                 desc="Uploading...")):
             pbar.set_postfix_str(filepath)
             response = self.upload_file(corpus_id, filepath, doc_id=doc_id, metadata=metadata, verbose=verbose)
             responses.append(response)
 
         return responses
-    
+
     @funix_method(disable=True)
     def upload_folder(self, corpus_id: str, dirpath: str, doc_ids: List[str] = [], metadata: Dict | List[Dict] = {}, verbose: bool = False) -> List[Dict]:
         """Upload all files from a directory
 
-        Parameters 
+        Parameters
         -----------
-            filepaths: str 
+            filepaths: str
                 paths to files
-            doc_ids: str 
+            doc_ids: str
                 alphanumeric IDs for referring to the documents later
             metadata: dict or list of dict
                 metadata for files. If a dict, then the same metadata will be used for all files in the request. If a list of dict, then each element is the metadata for each file in the request.
@@ -614,7 +621,7 @@ class vectara():
               lang: str = 'auto',
               contextConfig: dict = None,
               return_summary: bool = True,
-              metadata_filter: str = "", 
+              metadata_filter: str = "",
               print_format: Literal['json', 'markdown'] = '',
               verbose: bool = False
         ) -> Dict:
@@ -625,30 +632,30 @@ class vectara():
         >>> import vectara
         >>> client = vectara.vectara() # get default credentials from environment variables
         >>> client.query(
-                corpus_id, 
-                "What if the government fails to protect your rights?", 
-                metadata_filter="doc.id = 'we the people'", 
-                top_k=3, 
-                print_format='json', 
+                corpus_id,
+                "What if the government fails to protect your rights?",
+                metadata_filter="doc.id = 'we the people'",
+                top_k=3,
+                print_format='json',
                 verbose=True
             )
 
         Parameters
         ------------
-            corpus_id: int 
+            corpus_id: int
                 the corpus ID to send the query to
-            query: str 
+            query: str
                 the query (question, search terms) to ask
-            top_k: int 
+            top_k: int
                 the number of most matching results to return and to summarize
             lang: str
-                the ISO 639-1 or ISO 639-3 language code for the language in which a summary is generated. Default: 'auto', letting the Vectara platform to determine. 
+                the ISO 639-1 or ISO 639-3 language code for the language in which a summary is generated. Default: 'auto', letting the Vectara platform to determine.
             contextConfig: dict
-                See https://docs.vectara.com/docs/rest-api/query? for details 
+                See https://docs.vectara.com/docs/rest-api/query? for details
             return_summary: bool
                 whether to return a summary of the top_k results
             metadata_filter: str
-                Vectara's metadata filter to narrow down the search results. See https://docs.vectara.com/docs/learn/metadata-search-filtering/filter-overview and for details. 
+                Vectara's metadata filter to narrow down the search results. See https://docs.vectara.com/docs/learn/metadata-search-filtering/filter-overview and for details.
 
         Returns
         ---------
@@ -674,17 +681,17 @@ class vectara():
                 ]
             }
 
-        if contextConfig is not None: # add context 
+        if contextConfig is not None: # add context
             payload["query"][0]["contextConfig"] = contextConfig
 
-        if return_summary: # add summary 
+        if return_summary: # add summary
             payload["query"][0]["summary"] = [
                 {
                     'maxSummarizedResults': top_k,
-                    'responseLang': lang, 
-                    'factualConsistencyScore': True 
+                    'responseLang': lang,
+                    'factualConsistencyScore': True
                 }
-            ] 
+            ]
 
         if metadata_filter != "": # add metadata filter
             payload["query"][0]["corpusKey"][0]["metadataFilter"] = metadata_filter
@@ -699,7 +706,7 @@ class vectara():
             # 'Accept': 'application/json',
             'customer-id': self.customer_id,
         }
-        
+
         if self.api_key:
             headers["x-api-key"] = self.api_key
         else:
@@ -717,7 +724,7 @@ class vectara():
             summary = response_dict.get('summary', [])
             factualConsistencyScore = -1
             if len(summary) > 0:
-                if summary[0].get('text', '') != "": 
+                if summary[0].get('text', '') != "":
                     summary = response_dict['summary'][0]['text']
                     factualConsistencyScore = ['factualConsistencyScore']
             self.last_result = {
@@ -742,7 +749,7 @@ class vectara():
         result = post_process_query_result(self.query(corpus_id, query, top_k, lang))
         set_global_variable("last_markdown_result", "\n".join(result.splitlines()[:-3]))
         return result
-    
+
     @funix_method(
         title="Feedback",
         session_description="last_markdown_result",
@@ -766,10 +773,10 @@ class vectara():
         con.commit()
         set_global_variable("last_markdown_result", "")
         self.last_result = {}
-        return "Thank you for your feedback."       
+        return "Thank you for your feedback."
 
     @funix(disable=True)
-    def create_document_from_sections(self, 
+    def create_document_from_sections(self,
             corpus_id: int,
             sections: List[str],
             section_ids: List[int] = [],
@@ -777,12 +784,12 @@ class vectara():
             doc_id: str = "",
             doc_metadata: Dict = {},
             verbose: bool = False) -> Dict:
-        """Create a document in a corpus specified by ``corpus_id`` from a list of texts, each of which is a section of the document. 
+        """Create a document in a corpus specified by ``corpus_id`` from a list of texts, each of which is a section of the document.
 
         This is for experts. A document is a collection of sections, each of which is a collection of texts.
 
         The **difference** between this method and ``create_document_from_chunks`` is that in this methods, you cannot control the chunking of texts but you can hierarchically organize texts (although currently only one level of hierarchy is supported in this SDK).
-        
+
         Examples
         ------------
         >>> import vectara
@@ -790,12 +797,12 @@ class vectara():
         >>> client.add_sections(
                 corpus_id = 11,
                 sections = [
-                    "I have one TV. ", 
+                    "I have one TV. ",
                     "Ich habe einen TV."
                 ],
                 section_ids = [100, 200],
                 section_metadata = [
-                    {"language": "English"}, 
+                    {"language": "English"},
                     {"language": "German"}
                 ],
                 doc_id = "my apartment",
@@ -812,7 +819,7 @@ class vectara():
         section_ids: list of int
             (Optional) The section IDs for each section. If not provided, the section IDs will be generated by Vectara.
         section_metadata: list of dict
-            (Optional) The metadata for each section. If provided, the metadata will be pigged back in the query result. If not provided, the metadata will be empty. 
+            (Optional) The metadata for each section. If provided, the metadata will be pigged back in the query result. If not provided, the metadata will be empty.
         doc_id: str
             (Optional) The document ID for the document. If not provided, the document will just not have an ID. Note the ID is not a number. It is a string.
         doc_metadata: dict
@@ -828,7 +835,7 @@ class vectara():
         Notes
         ---------
         1. Vectara does not allow updating a document. If you want to update a document, you need to delete the document first and then re-add content into it.
-        2. A section ID must be positive integers. If it is 0, then it will not show up in the metadata of the query return. 
+        2. A section ID must be positive integers. If it is 0, then it will not show up in the metadata of the query return.
 
         Limitations
         ------------
@@ -861,7 +868,7 @@ class vectara():
         request = {'customer_id': self.customer_id, 'corpus_id': corpus_id, 'document': document}
 
         headers = {}
-            
+
         if self.api_key:
             headers["x-api-key"] = self.api_key
         else:
@@ -871,17 +878,17 @@ class vectara():
 
         response = requests.post(
             url,
-            headers=headers, 
+            headers=headers,
             data=json.dumps(request)
             )
 
         if verbose:
-            print (response.json()) 
+            print (response.json())
 
         return response.json()
 
     @funix(disable=True)
-    def create_document_from_chunks(self, 
+    def create_document_from_chunks(self,
             corpus_id: int,
             chunks: List[str],
             chunk_metadata: List[Dict] = [],
@@ -890,7 +897,7 @@ class vectara():
             verbose: bool = False) -> dict:
         """Create a document in a corpus specified by ``corpus_id`` from a list of texts, each of which is a chunk of the document.
 
-        This is for experts. A document is a collection of chunks. Each chunk is a unit in retrieval. 
+        This is for experts. A document is a collection of chunks. Each chunk is a unit in retrieval.
 
         The difference between this method and ``create_document_from_sections`` is that in this method, you can control the chunking of texts -- a chunk you upload is the retrieval unit -- and all chunks are at the same level, while in ``create_document_from_sections``, you cannot control the chunking of texts and the sections can be hierarchical (although currently only one level of hierarchy is supported in this SDK).
 
@@ -921,13 +928,13 @@ class vectara():
         if len(chunk_metadata) > 0:
             assert len(chunk_metadata) == len(chunks), "Length of chunk_metadata must be the same as the number of chunks."
             parts = [d | {"metadataJson": json.dumps(metadata)} for d, metadata in zip(parts, chunk_metadata)]
-        document = {'document_id': doc_id, 'parts': parts, 'metadataJson': json.dumps(doc_metadata)} 
+        document = {'document_id': doc_id, 'parts': parts, 'metadataJson': json.dumps(doc_metadata)}
         request = {'customer_id': self.customer_id, 'corpus_id': corpus_id, 'document': document}
 
-        print (json.dumps(request, indent=2))
+        # print (json.dumps(request, indent=2))
 
         headers = {}
-            
+
         if self.api_key:
             headers["x-api-key"] = self.api_key
         else:
@@ -937,12 +944,12 @@ class vectara():
 
         response = requests.post(
             url,
-            headers=headers, 
-            data=json.dumps(request) 
+            headers=headers,
+            data=json.dumps(request)
             )
 
         if verbose:
-            print (response.json()) 
+            print (response.json())
 
         return response.json()
 
@@ -950,7 +957,7 @@ class vectara():
 def post_process_query_result(
     query_result: Dict,
     print_format: Literal['json', 'markdown'] = 'markdown',
-    jupyter_display: bool = False, 
+    jupyter_display: bool = False,
     collect_feedback: bool = False) -> Markdown | str:
     """Postprocess query results in Vectara's JSON into a simpler dictionary and a Markdown string for displaying
 
@@ -963,7 +970,7 @@ def post_process_query_result(
 
     answers = query_result['responseSet'][0] # Since we only make one query each time, there is only one element in the responseSet
 
-    try: 
+    try:
         summary = answers['summary'][0]['text']
         factualConsistencyScore = answers['summary'][0]['factualConsistency']['score']
     except:
@@ -991,7 +998,7 @@ Factual Consistency Score: `{factualConsistencyScore}`
             {
                 'doc_index': src_doc_index,
                 'doc_id': src_doc_id,
-                'text': answer['text'], 
+                'text': answer['text'],
                 "matchness": matchness
             }
         )
@@ -1001,7 +1008,7 @@ f"""
 {number+1}. From document **{src_doc_id}** (matchness={matchness}):
   _...{md2text(answer['text'])}..._
 """
-    
+
     if collect_feedback:
         md += "\n\n[Feedback](/feedback)"
 
