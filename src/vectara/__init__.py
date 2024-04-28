@@ -7,7 +7,7 @@
 # forrest@vectara.com
 
 
-import json, os, io
+import json, os, io, time
 from typing import List, Literal, Dict
 
 import requests
@@ -952,6 +952,186 @@ class vectara():
             print (response.json())
 
         return response.json()
+
+    @funix(disable=True)
+    def list_jobs(self, 
+            jobID: int = None,
+            corpus_ids: List[int] = None,
+            elapsed_seconds: int = None,
+            states: List[Literal['QUEUED', 'STARTED', 'COMPLETED', 'FAILED', 'ABORTED', 'UNKNOWN']] = None,
+            numResults: int = 10,
+            pageKey: str = None
+            ) -> dict:
+        """List the statuses of jobs. 
+        
+        All parameters are optional to narrow down the job listing. If no parameters are provided, then the method will return the latested 100 jobs in the past 180 days.
+
+        An example of the response is as follows:
+
+        .. highlight:: json
+        .. code-block:: json 
+
+            {
+                "status": [],
+                "job": [
+                    {
+                    "id": "SDIzYktHMzNHMlJpsbXC8p5IJaONNGgnpbsUViXXkOoqnA==",
+                    "type": "JOB__CORPUS_REPLACE_FILTER_ATTRS",
+                    "corpusId": [
+                        12
+                    ],
+                    "state": "JOB_STATE__COMPLETED",
+                    "tsCreate": "1714181371",
+                    "tsStart": "1714181400",
+                    "tsComplete": "1714181400",
+                    "userHandle": "forrest.bao@gmail.com"
+                    },
+                    {
+                    "id": "SDIzYktHMzNHMlJpsbXC8pRDZL2Iw1JV41cTcneieXc2CA==",
+                    "type": "JOB__CORPUS_REPLACE_FILTER_ATTRS",
+                    "corpusId": [
+                        12
+                    ],
+                    "state": "JOB_STATE__COMPLETED",
+                    "tsCreate": "1714285513",
+                    "tsStart": "1714285562",
+                    "tsComplete": "1714285562",
+                    "userHandle": "forrest.bao@gmail.com"
+                    }
+                ],
+                "pageKey": "e8jhrDQNZwagrBQmcuoGVHUCeaqHF+2TE4nUkm34HPWjm147U6223iT9bO/oa6NKohoQZTT2NuqFRuCqp143g3rIVseAPi0liPTvXfKNc0FGBjuB"
+            }
+
+        Parameters
+        ------------
+            jobID: int
+                (Optional) the ID of the job to check 
+            corpus_ids: List[int]
+                (Optional) the corpus ID to list jobs for
+            elapsed_seconds: int
+                (Optional) only return jobs that were within these many seconds ago. Max allowed value is 180 days ago.
+            states: List[Literal['QUEUED', 'STARTED', 'COMPLETED', 'FAILED', 'ABORTED', 'UNKNOWN']]
+                (Optional) only return job matching these states
+            numResults: int
+                (Optional) the number of jobs to return. Max is 100. 
+            pageKey: str
+                (Optional) return the jobs starting from this page
+        
+        Returns
+        ---------
+            dict
+                A nested Python dict containing the list of jobs. The structure of the dict is described in this page https://docs.vectara.com/docs/rest-api/list-jobs 
+        """
+
+        url = f"{self.base_url}/v1/list-jobs"
+
+        headers = {}
+
+        if self.api_key:
+            headers["x-api-key"] = self.api_key
+        else:
+            headers["Authorization"] = f"Bearer {self.jwt_token}"
+
+        payload = {} 
+        if jobID:
+            payload['jobId'] = jobID
+        if corpus_ids:
+            payload['corpusId'] = corpus_ids
+        if elapsed_seconds:
+            payload['epochSecs'] = elapsed_seconds
+        if states:
+            payload['state'] = states
+        if numResults:
+            payload['numResults'] = numResults
+        if pageKey:
+            payload['pageKey'] = pageKey
+
+        response = requests.post(url, headers=headers,data=json.dumps(payload))
+
+        return response.json()
+
+    @funix(disable=True)
+    def add_corpus_filters(self, 
+            corpus_id: int,
+            name: str,
+            type: Literal['text', 'float', 'int', 'bool'],
+            level: Literal['document', 'part'],
+            description: str = "",
+            index: bool=False
+            ) -> int: 
+        
+        """Set the filters for a corpus. 
+
+        Parameters
+        ------------
+            corpus_id: int
+                the corpus ID to set filters for
+            name: str
+                the name of the filter. must match a name in the metadata of the documents in the corpus. 
+            description: str
+                (Optional) the description of the filter
+            type: Literal['text', 'float', 'int', 'bool']
+                the type of the filter
+            level: Literal['document', 'part']
+                the level of the filter
+            index: bool
+                whether to index the filter. Once indexed, searching on it can be faster. 
+
+        Returns
+        ---------
+            int | dict
+                A job ID if the request is successful. Else, the response as a nested Python dict for further inspection.
+        """
+        
+        url = f"{self.base_url}/v1/replace-corpus-filter-attrs"
+        headers = {}
+
+        if self.api_key:
+            headers["x-api-key"] = self.api_key
+        else:
+            headers["Authorization"] = f"Bearer {self.jwt_token}"
+
+        type_mapping= {'text': 'TEXT', 'float': 'REAL', 'int': 'INTEGER', 'bool': 'BOOLEAN'}
+
+        level_mapping = {'document': 'DOCUMENT', 'part': 'DOCUMENT_PART'}
+
+        payload = {
+            "corpusId": corpus_id,
+            "filterAttributes": [
+                {
+                "name": name,
+                "description": description,
+                "indexed": index,
+                "type": f"FILTER_ATTRIBUTE_TYPE__{type_mapping[type]}",
+                "level": f"FILTER_ATTRIBUTE_LEVEL__{level_mapping[level]}"
+                }
+            ]
+        }
+
+        response = requests.post(url, headers=headers, data=json.dumps(payload))
+        response_json = response.json()
+
+        if response.status_code == 200:
+            if 'status' in response_json:
+                if response_json['status'] == 'OK':
+                    jobId = response_json['jobId']
+            else: 
+                print (response_json)
+                return response_json
+        else:
+            print(response_json)
+            return response_json
+        
+        job_status = self.list_jobs(jobID=jobId)
+        start_time = time.time()
+        print ("Updating filter attributes...jobID=", jobId)
+        while job_status['job'][0]['state'] != 'JOB_STATE__COMPLETED':
+            time.sleep(1)
+            job_status = self.list_jobs(jobID=jobId)
+            print ("Updating...", job_status['job'][0]['state'], "elapsed time", time.time() - start_time, end="\r")
+        
+        print ("Done")
+        return jobId        
 
 @funix(disable=True)
 def post_process_query_result(
