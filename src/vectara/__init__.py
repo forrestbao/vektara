@@ -954,7 +954,7 @@ class vectara():
         return response.json()
 
     @funix(disable=True)
-    def list_jobs(self, 
+    def list_jobs(self,
             jobID: int = None,
             corpus_ids: List[int] = None,
             elapsed_seconds: int = None,
@@ -962,14 +962,14 @@ class vectara():
             numResults: int = 10,
             pageKey: str = None
             ) -> dict:
-        """List the statuses of jobs. 
-        
+        """List the statuses of jobs.
+
         All parameters are optional to narrow down the job listing. If no parameters are provided, then the method will return the latested 100 jobs in the past 180 days.
 
         An example of the response is as follows:
 
         .. highlight:: json
-        .. code-block:: json 
+        .. code-block:: json
 
             {
                 "status": [],
@@ -1005,7 +1005,7 @@ class vectara():
         Parameters
         ------------
             jobID: int
-                (Optional) the ID of the job to check 
+                (Optional) the ID of the job to check
             corpus_ids: List[int]
                 (Optional) the corpus ID to list jobs for
             elapsed_seconds: int
@@ -1013,14 +1013,14 @@ class vectara():
             states: List[Literal['QUEUED', 'STARTED', 'COMPLETED', 'FAILED', 'ABORTED', 'UNKNOWN']]
                 (Optional) only return job matching these states
             numResults: int
-                (Optional) the number of jobs to return. Max is 100. 
+                (Optional) the number of jobs to return. Max is 100.
             pageKey: str
                 (Optional) return the jobs starting from this page
-        
+
         Returns
         ---------
             dict
-                A nested Python dict containing the list of jobs. The structure of the dict is described in this page https://docs.vectara.com/docs/rest-api/list-jobs 
+                A nested Python dict containing the list of jobs. The structure of the dict is described in this page https://docs.vectara.com/docs/rest-api/list-jobs
         """
 
         url = f"{self.base_url}/v1/list-jobs"
@@ -1032,7 +1032,7 @@ class vectara():
         else:
             headers["Authorization"] = f"Bearer {self.jwt_token}"
 
-        payload = {} 
+        payload = {}
         if jobID:
             payload['jobId'] = jobID
         if corpus_ids:
@@ -1051,23 +1051,23 @@ class vectara():
         return response.json()
 
     @funix(disable=True)
-    def add_corpus_filters(self, 
+    def add_corpus_filters(self,
             corpus_id: int,
             name: str,
             type: Literal['text', 'float', 'int', 'bool'],
             level: Literal['document', 'part'],
             description: str = "",
             index: bool=False
-            ) -> int: 
-        
-        """Set the filters for a corpus. 
+            ) -> int:
+
+        """Set the filters for a corpus.
 
         Parameters
         ------------
             corpus_id: int
                 the corpus ID to set filters for
             name: str
-                the name of the filter. must match a name in the metadata of the documents in the corpus. 
+                the name of the filter. must match a name in the metadata of the documents in the corpus.
             description: str
                 (Optional) the description of the filter
             type: Literal['text', 'float', 'int', 'bool']
@@ -1075,14 +1075,14 @@ class vectara():
             level: Literal['document', 'part']
                 the level of the filter
             index: bool
-                whether to index the filter. Once indexed, searching on it can be faster. 
+                whether to index the filter. Once indexed, searching on it can be faster.
 
         Returns
         ---------
             int | dict
                 A job ID if the request is successful. Else, the response as a nested Python dict for further inspection.
         """
-        
+
         url = f"{self.base_url}/v1/replace-corpus-filter-attrs"
         headers = {}
 
@@ -1110,28 +1110,30 @@ class vectara():
 
         response = requests.post(url, headers=headers, data=json.dumps(payload))
         response_json = response.json()
-
         if response.status_code == 200:
-            if 'status' in response_json:
-                if response_json['status'] == 'OK':
-                    jobId = response_json['jobId']
-            else: 
+            if 'jobId' in response_json and response_json['jobId']:
+                jobId = response_json['jobId']
+            else:
                 print (response_json)
                 return response_json
         else:
             print(response_json)
             return response_json
-        
+
         job_status = self.list_jobs(jobID=jobId)
         start_time = time.time()
-        print ("Updating filter attributes...jobID=", jobId)
+        print ("Updating filter attributes...jobID =", jobId)
         while job_status['job'][0]['state'] != 'JOB_STATE__COMPLETED':
             time.sleep(1)
             job_status = self.list_jobs(jobID=jobId)
-            print ("Updating...", job_status['job'][0]['state'], "elapsed time", time.time() - start_time, end="\r")
-        
+            if len(job_status["job"]) == 0:
+                print("Job done or not found. ")
+                break
+            else:
+                print ("Updating...", job_status['job'][0]['state'], "elapsed time", time.time() - start_time, end="\r")
+
         print ("Done")
-        return jobId        
+        return jobId
 
 @funix(disable=True)
 def post_process_query_result(
