@@ -19,6 +19,68 @@ The usage and examples can be found in the `README page <https://github.com/forr
 
 `vectara-python-cli` is unofficially maintained by employees and users of Vectara. 
 
+
+Functions
+---------
+
+Administrative
+^^^^^^^^^^^^^^^
+
++-----------------------------------+--------------------------+----------------------------------+
+| Function                          | Vectara endpoint         | Purpose                          |
++===================================+==========================+==================================+
+| ``vectara.acquire_jwt_token()``   | N/A because it is        | Acquire OAuth2 token             |
+|                                   | through AWS              |                                  |
++-----------------------------------+--------------------------+----------------------------------+
+| ``vectara.list_jobs()``           | ``list-jobs``            | List jobs, with filters if       |
+|                                   |                          | applicable                       |
++-----------------------------------+--------------------------+----------------------------------+
+
+Corpus management
+^^^^^^^^^^^^^^^^^^
+
++--------------------------------------+---------------------------+---------------------------------------------------+
+| Function                             | Vectara endpoint          | Purpose                                           |
++======================================+===========================+===================================================+
+| ``vectara.create_corpus()``          | ``create-corpus``         | Create a new corpus                               |
++--------------------------------------+---------------------------+---------------------------------------------------+
+| ``vectara.reset_corpus()``           | ``reset-corpus``          | Remove all documents in a corpus but keeping      |
+|                                      |                           | the metadata if there is any                      |
++--------------------------------------+---------------------------+---------------------------------------------------+
+| ``vectara.list_documents()``         | ``list-documents``        | List documents in a corpus                        |
++--------------------------------------+---------------------------+---------------------------------------------------+
+| ``vectara.add_corpus_filter()``      | ``replace-corpus-filter-  | Set certain metadata fields to filterable         |
+|                                      | attrs``                   |                                                   |
++--------------------------------------+---------------------------+---------------------------------------------------+
+
+Adding content to a corpus 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
++-----------------------------------------------+-------------------+-----------------------------------------------------------------------------------+
+| Function                                      | Vectara endpoint  | Purpose                                                                           |
++===============================================+===================+===================================================================================+
+| ``vectara.upload()``                          | ``fileUpload``    | Upload a single file, a list of files, or an entire folder. Supports adding       |
+|                                               |                   | metadata.                                                                         |
++-----------------------------------------------+-------------------+-----------------------------------------------------------------------------------+
+| ``vectara.create_document_from_sections()``   | ``index``         | Create a document by adding texts with hierarchy, like a book consisting          |
+|                                               |                   | of chapters consisting of sections, etc. But you have no control over             |
+|                                               |                   | how texts are chunked.                                                            |
++-----------------------------------------------+-------------------+-----------------------------------------------------------------------------------+
+| ``vectara.create_document_from_chunks()``     | ``core/index``    | Create a document by adding text chunks without hierarchy. Each chunk             |
+|                                               |                   | becomes a unit in retrieval.                                                      |
++-----------------------------------------------+-------------------+-----------------------------------------------------------------------------------+
+
+Querying a corpus 
+^^^^^^^^^^^^^^^^^^   
+
++------------------------+------------+------------------------------------+
+| Function               | Vectara    | Purpose                            |
+|                        | endpoint   |                                    |
++========================+============+====================================+
+| ``vectara.query()``    | ``query``  | Query a corpus. Supports filtering.|
++------------------------+------------+------------------------------------+
+
+
 The ``vectara`` class 
 -----------------------
 
@@ -26,7 +88,7 @@ Please use the navigation on the left to find the method.
 
 .. automodule:: vectara
 .. autoclass:: vectara
-   :members: acquire_jwt_token, create_corpus, reset_corpus, list_documents, upload, query, create_document_from_sections, create_document_from_chunks
+   :members: acquire_jwt_token, create_corpus, reset_corpus, list_documents, list_jobs, upload, query, create_document_from_sections, create_document_from_chunks
    :special-members: __init__
 
 

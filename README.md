@@ -1,28 +1,50 @@
 # An UNofficial Python SDK and CLI for Vectara's RAG platform
 
-It supports major features of Vectara's RAG platform for you to build your own search engine.
-
-Additional features:
-
-* It expands the upload function to allow you to upload a list of files or all files under a directory in one function call.
-* Renders query results in beautiful Markdown printout (see `demo_simple.ipynb`).
-* It supports logging user feedback from the GUI in a local SQLite database for evaluating the quality of search and RAG. 
-
-**If you like this SDK/CLI/GUI, give us a star on Github!**
+<div align="center">
+<h3> [![PyPI version](https://badge.fury.io/py/vectara.svg)](https://badge.fury.io/py/vectara)|  <a href="https://vectara-python-cli.readthedocs.io/en/latest/">Reference Manual</a> </h3>
+</div>
 
 ## Installation
 
 ```bash
-# Stable
-pip install vectara
-
-# Nightly
-pip install "git+https://github.com/forrestbao/vectara-python-cli.git"
+pip install vectara # Stable
+# OR
+pip install "git+https://github.com/forrestbao/vectara-python-cli.git" # Nightly
 ```
+
+## Hello, world!
+
+```python
+import vectara
+
+client = vectara.vectara() # get credentials from environment variables 
+
+corpus_id = client.create_corpus('founding documents of the US')
+
+client.upload(corpus_id, './US_Constition.txt') 
+client.upload(corpus_id, './Declaration_of_Independence.txt') 
+
+client.query(corpus_id, 'What should I do if the government becomes unjust?') 
+``` 
+
+## This SDK/CLI/GUI vs. Vectara's official RESTFul API
+* Type less and more done. No boilerplate code.
+* Copy-and-pastable examples and Jupyter notebooks to jumpstart you. 
+* Forget about low-level details, e.g., all metadata fields are automatically set to filterable -- under construction. 
+* More ways to interact
+  * Command line interface (CLI)
+  * GUI powered by [Funix.io]http://Funix.io) for quickly building web apps that ordinary people can use.
+* More features: 
+  * Upload an entire folder. 
+  * Stylish Markdown printout for query response (see [`demo_simple.ipynb`](./demo_simple.ipynb)).
+  * Log user feedback from the GUI in a local SQLite database for evaluating the quality of search and RAG. 
+  * Pairable with [LlamaKey.ai](http://llamakey.ai) or any API router to manage API keys and throttle requests.
 
 ## Usage
 
-### Credentials
+See demos in the [`./demos`](./demos) directory.
+
+### Setting credentials
 
 This client supports authentication in both Vectara's [Personal API key](https://docs.vectara.com/docs/console-ui/personal-api-key) and [OAuth2](https://docs.vectara.com/docs/console-ui/app-clients). In either case, you need to obtain [customer ID](https://docs.vectara.com/docs/console-ui/vectara-console-overview#view-the-customer-id) as well. 
 
@@ -49,7 +71,7 @@ Alternatively, you can pass in your credentials as arguments when initializing t
 
 ### Using the Python SDK 
 
-Try the Jupyter notebook `demo_simple.ipynb`, the script `demo_simple.py`, or read the [reference manual](https://vectara-python-cli.readthedocs.io/en/latest/).
+Try the Jupyter notebook `./demos/demo_simple.ipynb`, the script `demo_simple.py`, or read the [reference manual](https://vectara-python-cli.readthedocs.io/en/latest/).
 
 ```python
 import vectara

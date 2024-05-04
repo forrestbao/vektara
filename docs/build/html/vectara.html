@@ -62,6 +62,8 @@
 <li><a class="reference internal" href="#vectara.vectara.feedback"><code class="docutils literal notranslate"><span class="pre">vectara.feedback()</span></code></a></li>
 <li><a class="reference internal" href="#vectara.vectara.create_document_from_sections"><code class="docutils literal notranslate"><span class="pre">vectara.create_document_from_sections()</span></code></a></li>
 <li><a class="reference internal" href="#vectara.vectara.create_document_from_chunks"><code class="docutils literal notranslate"><span class="pre">vectara.create_document_from_chunks()</span></code></a></li>
+<li><a class="reference internal" href="#vectara.vectara.list_jobs"><code class="docutils literal notranslate"><span class="pre">vectara.list_jobs()</span></code></a></li>
+<li><a class="reference internal" href="#vectara.vectara.add_corpus_filters"><code class="docutils literal notranslate"><span class="pre">vectara.add_corpus_filters()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#vectara.post_process_query_result"><code class="docutils literal notranslate"><span class="pre">post_process_query_result()</span></code></a></li>
@@ -166,7 +168,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vectara.vectara.list_documents">
-<span class="sig-name descname"><span class="pre">list_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corpus_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numResults</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#vectara.vectara.list_documents" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">list_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corpus_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numResults</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pageKey</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#vectara.vectara.list_documents" title="Link to this definition"></a></dt>
 <dd><p>List documents in a corpus specified by <code class="docutils literal notranslate"><span class="pre">corpus_id</span></code> up to the number of the optional parameter <code class="docutils literal notranslate"><span class="pre">numResults</span></code>.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">vectara</span>
@@ -179,6 +181,7 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>corpus_id</strong> (<em>int</em>) – the ID of the corpus to list documents from</p></li>
 <li><p><strong>numResults</strong> (<em>int</em>) – the number of documents to list. The max value is 1,000.  Default is 10.</p></li>
+<li><p><strong>pageKey</strong> (<em>str</em>) – (Optional) the page key to get the next page of results. Default is None.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -420,6 +423,88 @@ metadata: metadata for files. If a dict, then the same metadata will be used for
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vectara.vectara.list_jobs">
+<span class="sig-name descname"><span class="pre">list_jobs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jobID</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corpus_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elapsed_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'QUEUED'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'STARTED'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'COMPLETED'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'FAILED'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'ABORTED'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'UNKNOWN'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numResults</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pageKey</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#vectara.vectara.list_jobs" title="Link to this definition"></a></dt>
+<dd><p>List the statuses of jobs.</p>
+<p>All parameters are optional to narrow down the job listing. If no parameters are provided, then the method will return the latested 100 jobs in the past 180 days.</p>
+<p>An example of the response is as follows:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">    </span><span class="nt">&quot;job&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SDIzYktHMzNHMlJpsbXC8p5IJaONNGgnpbsUViXXkOoqnA==&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;JOB__CORPUS_REPLACE_FILTER_ATTRS&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;corpusId&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="mi">12</span>
+<span class="w">        </span><span class="p">],</span>
+<span class="w">        </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;JOB_STATE__COMPLETED&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;tsCreate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1714181371&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;tsStart&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1714181400&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;tsComplete&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1714181400&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;userHandle&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;forrest.bao@gmail.com&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SDIzYktHMzNHMlJpsbXC8pRDZL2Iw1JV41cTcneieXc2CA==&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;JOB__CORPUS_REPLACE_FILTER_ATTRS&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;corpusId&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="mi">12</span>
+<span class="w">        </span><span class="p">],</span>
+<span class="w">        </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;JOB_STATE__COMPLETED&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;tsCreate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1714285513&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;tsStart&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1714285562&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;tsComplete&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1714285562&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;userHandle&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;forrest.bao@gmail.com&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;pageKey&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;e8jhrDQNZwagrBQmcuoGVHUCeaqHF+2TE4nUkm34HPWjm147U6223iT9bO/oa6NKohoQZTT2NuqFRuCqp143g3rIVseAPi0liPTvXfKNc0FGBjuB&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>jobID</strong> (<em>int</em>) – (Optional) the ID of the job to check</p></li>
+<li><p><strong>corpus_ids</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – (Optional) the corpus ID to list jobs for</p></li>
+<li><p><strong>elapsed_seconds</strong> (<em>int</em>) – (Optional) only return jobs that were within these many seconds ago. Max allowed value is 180 days ago.</p></li>
+<li><p><strong>states</strong> (<em>List</em><em>[</em><em>Literal</em><em>[</em><em>'QUEUED'</em><em>, </em><em>'STARTED'</em><em>, </em><em>'COMPLETED'</em><em>, </em><em>'FAILED'</em><em>, </em><em>'ABORTED'</em><em>, </em><em>'UNKNOWN'</em><em>]</em><em>]</em>) – (Optional) only return job matching these states</p></li>
+<li><p><strong>numResults</strong> (<em>int</em>) – (Optional) the number of jobs to return. Max is 100.</p></li>
+<li><p><strong>pageKey</strong> (<em>str</em>) – (Optional) return the jobs starting from this page</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A nested Python dict containing the list of jobs. The structure of the dict is described in this page <a class="reference external" href="https://docs.vectara.com/docs/rest-api/list-jobs">https://docs.vectara.com/docs/rest-api/list-jobs</a></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vectara.vectara.add_corpus_filters">
+<span class="sig-name descname"><span class="pre">add_corpus_filters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corpus_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'text'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'float'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'int'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'bool'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'document'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'part'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#vectara.vectara.add_corpus_filters" title="Link to this definition"></a></dt>
+<dd><p>Set the filters for a corpus.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>corpus_id</strong> (<em>int</em>) – the corpus ID to set filters for</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – the name of the filter. must match a name in the metadata of the documents in the corpus.</p></li>
+<li><p><strong>description</strong> (<em>str</em>) – (Optional) the description of the filter</p></li>
+<li><p><strong>type</strong> (<em>Literal</em><em>[</em><em>'text'</em><em>, </em><em>'float'</em><em>, </em><em>'int'</em><em>, </em><em>'bool'</em><em>]</em>) – the type of the filter</p></li>
+<li><p><strong>level</strong> (<em>Literal</em><em>[</em><em>'document'</em><em>, </em><em>'part'</em><em>]</em>) – the level of the filter</p></li>
+<li><p><strong>index</strong> (<em>bool</em>) – whether to index the filter. Once indexed, searching on it can be faster.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A job ID if the request is successful. Else, the response as a nested Python dict for further inspection.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int | dict</p>
 </dd>
 </dl>
 </dd></dl>
