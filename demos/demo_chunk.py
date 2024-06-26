@@ -6,8 +6,11 @@ from vectara import vectara
 # Initialize the client
 client = vectara()
 
-corpus_id = 12 
-# client.reset_corpus(corpus_id) # delete all documents in the corpus
+# Create a corpus (not always needed)
+corpus_id = client.create_corpus('America, the Beautiful') # create a new corpus
+
+# corpus_id = 12 
+# client.reset_corpus(corpus_id) # delete all documents in the corpus, CAUTION
 
 text_list = [
     'we the people of the united states in order to form a more perfect union do ordain and establish this constitution for the united states of america.', 
