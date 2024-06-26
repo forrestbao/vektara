@@ -457,13 +457,14 @@ class vectara():
         if isinstance(source, str):
             if os.path.isfile(source):
                 assert doc_id is None or isinstance(doc_id, str), "doc_id must be either empty or a string if source is a single file."
-                r = self.upload_file(corpus_id, source, doc_id=doc_id, metadata=metadata, verbose=True)
+                r = self.upload_file(corpus_id, source, doc_id=doc_id, metadata=metadata, verbose=verbose)
             elif os.path.isdir(source):
                 # FIXME: default descrptions for upload_folder() is an empty list. Diff from the default description for upload()).
                 assert doc_id is None or isinstance(doc_id, list), "doc_id must be a list if source is a folder."
                 r = self.upload_folder(corpus_id, source, doc_ids=doc_id, metadata=metadata, verbose=verbose)
             else:
-                print("Invalid source. ")
+                print(f"Invalid source {source}")
+                exit()
         elif isinstance(source, list):
             # FIXME: default descrptions for upload_files() is an empty list. Diff from the default description for upload()).
             assert doc_id is None or isinstance(doc_id, list), "doc_id must be either empty or a list if source is a list of file paths."
@@ -623,6 +624,7 @@ class vectara():
               return_summary: bool = True,
               metadata_filter: str = "",
               print_format: Literal['json', 'markdown'] = '',
+              jupyter_display: bool = False,
               verbose: bool = False
         ) -> Dict:
         """Make a query to a corpus at Vectara
@@ -735,11 +737,17 @@ class vectara():
                 "factualConsistencyScore": factualConsistencyScore,
                 "raw_response": response.json(),
             }
-            if self.from_cli or (print_format in ['markdown', 'json']):
-                simple_json = post_process_query_result(response.json(), print_format=print_format)
-                print(simple_json)
-            else:
-                return response.json()
+
+            beautiful_content = post_process_query_result(
+                response.json(), 
+                print_format=print_format, 
+                jupyter_display=jupyter_display
+            )
+
+            if self.from_cli or verbose:    
+                print(beautiful_content)
+
+            return response.json()
 
     @funix_method(title="Query", keep_last = True)
     def query_funix(self, corpus_id: int,
@@ -1119,6 +1127,8 @@ class vectara():
         else:
             print(response_json)
             return response_json
+
+        print (jobId)
 
         job_status = self.list_jobs(jobID=jobId)
         start_time = time.time()

@@ -9,3 +9,4 @@ tqdm
 IPython
 fire
 funix
+myst-parser

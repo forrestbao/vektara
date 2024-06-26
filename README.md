@@ -1,80 +1,89 @@
-# An UNofficial Python SDK and CLI for Vectara's RAG platform
+# An UNofficial Python SDK and CLI/GUI client for Vectara's RAG platform
 
-It supports major features of Vectara's RAG platform for you to build your own search engine.
-
-Additional features:
-
-* It expands the upload function to allow you to upload a list of files or all files under a directory in one function call.
-* Renders query results in beautiful Markdown printout (see `demo_simple.ipynb`).
-* It supports logging user feedback from the GUI in a local SQLite database for evaluating the quality of search and RAG. 
-
-**If you like this SDK/CLI/GUI, give us a star on Github!**
+<div align="center">
+<h3> [![PyPI version](https://badge.fury.io/py/vectara.svg)](https://badge.fury.io/py/vectara)|  <a href="https://vectara-python-cli.readthedocs.io/en/latest/">Reference Manual</a> </h3>
+</div>
 
 ## Installation
 
 ```bash
-# Stable
-pip install vectara
-
-# Nightly
-pip install "git+https://github.com/forrestbao/vectara-python-cli.git"
+pip install vectara # Stable
+# OR
+pip install "git+https://github.com/forrestbao/vectara-python-cli.git" # Nightly
 ```
 
-## Usage
+## Hello, world!
 
-### Credentials
-
-This client supports authentication in both Vectara's [Personal API key](https://docs.vectara.com/docs/console-ui/personal-api-key) and [OAuth2](https://docs.vectara.com/docs/console-ui/app-clients). In either case, you need to obtain [customer ID](https://docs.vectara.com/docs/console-ui/vectara-console-overview#view-the-customer-id) as well. 
-
-Following the convention of OpenAI's client, we recommend setting credentials as environment variables. You can save them as a bash script and simply `source` it before using the SDK or CLI.
-
-```bash
-export VECTARA_CUSTOMER_ID=123 # Required regardless of the authentication method
-
-# Set API Key if you plan to use Personal API Key to authenticate
-export VECTARA_API_KEY=abc
-
-# Set the following two variables if you plan to use OAuth2 to authenticate
-export VECTARA_CLIENT_ID=abc
-export VECTARA_CLIENT_SECRET=xyz
-
-# If both API key and OAuth2 credentials are set, the SDK will use API key only.
-
-# optional, if you are using a proxy like LlaMasterKey https://github.com/TexteaInc/LlaMasterKey/
-export VECTARA_BASE_URL="http://127.0.0.1:8000/vectara"
-export VECTARA_PROXY_MODE=true # Enable proxy mode
-```
-
-Alternatively, you can pass in your credentials as arguments when initializing the client. See it from the complete code. 
-
-### Using the Python SDK 
-
-Try the Jupyter notebook `demo_simple.ipynb`, the script `demo_simple.py`, or read the [reference manual](https://vectara-python-cli.readthedocs.io/en/latest/).
+Here are the basic steps in RAG: 
+1. Creating a corpus, a collection of documents.
+2. Ingestion: upload documents to a corpus. 
+3. Querying: ask questions to the corpus.
 
 ```python
 import vectara
 
 client = vectara.vectara() # get credentials from environment variables 
 
-corpus_id = client.create_corpus('my knowledge base')
-client.upload(corpus_id, './test_data') # upload all files under the directory `test_data` to the corpus
+corpus_id = client.create_corpus('founding documents of the US')
 
-client.query(corpus_id, 'What if the government becomes unjust?', top_k=5, print_format='json') # getting an answer for the query
+client.upload(corpus_id, './test_data/US_Constition.txt') 
+client.upload(corpus_id, './test_data/Declaration_of_Independence.txt') 
 
-client.query(corpus_id, 'Who can run for president?', top_k=5, return_summary=False, print_format='json') # Google-style search results without the summary
+client.query(corpus_id, 'What should I do if the government becomes unjust?') 
+``` 
 
-client.reset_corpus(corpus_id) # delete all documents in the corpus
+## Before you start: credentials
+
+### Obtaining Vectara credentials
+
+This client supports authentication in both Vectara's [Personal API key](https://docs.vectara.com/docs/console-ui/personal-api-key) and [OAuth2](https://docs.vectara.com/docs/console-ui/app-clients). In either case, you need to obtain [customer ID](https://docs.vectara.com/docs/console-ui/vectara-console-overview#view-the-customer-id) as well.
+
+### Setting up credentials
+
+Following the convention of OpenAI's client, we recommend setting credentials as environment variables. You can save them as a bash script and simply `source` it before using the SDK. 
+
+```bash
+export VECTARA_CUSTOMER_ID=123 # Required regardless of the authentication method
+
+# For using Personal API Key to authenticate
+export VECTARA_API_KEY=abc
+
+# For using OAuth2 to authenticate
+export VECTARA_CLIENT_ID=abc
+export VECTARA_CLIENT_SECRET=xyz
+
+# If both API key and OAuth2 credentials are set, the API key supercedes OAuth2.
+
+# optional, if you are using a proxy like LlaMasterKey https://github.com/TexteaInc/LlaMasterKey/
+export VECTARA_BASE_URL="http://127.0.0.1:8000/vectara"
+export VECTARA_PROXY_MODE=true # Enable proxy mode
 ```
 
-The SDk gives you a lot of power to control how data is uploaded and queried. For advanced usage, please see `demo_advanced.py` and `demo_chunk.py`. 
+Alternatively, you can pass in your credentials as arguments when [initializing the client](https://vectara-python-cli.readthedocs.io/en/latest/#vectara.vectara.__init__). 
 
-Additional features support logging user feedback from the GUI in a local SQLite database for evaluating the quality of search and RAG. 
+## Using the Python SDK 
 
-### Command line
+The [hello, world example above](#hello-world) shows how to add PDF files to a corpus and getting an answer about the knowledge in the PDF. 
+More examples can be found in the `./demos` folder. 
 
+The SDK supports the following operations. Detailed usages can be found in the [reference manual](https://vectara-python-cli.readthedocs.io/en/latest/). 
+1. Create a corpus 
+2. Reset a corpus (cleans out documents in a corpus but keeps the corpus and metadata)
+3. List the documents in a corpus 
+4. Add documents to a corpus
+   * From local file(s)/folder
+   * From a list of chunks (`str`) without any hierarchy
+   * From a nested list of sections hierarchically but you don't control chunking - a section is a list of `str`'s or sections.
+5. Query a corpus
+6. Set filters for a corpus which is a job in a queue
+7. List a job (e.g., filter setting) in a corpus
+
+## Using the CLI client
+
+The features in the CLI client are similar to the SDK. 
 To learn the command line usage, run `vectara --help`.
 
-You must set up your Vectara credentials as environment variables before using the command line interface.
+You must [obtain and set up your Vectara credentials as environment variables](#before-you-start-credentials) before using the command line interface.
 
 ```bash
 # create a corpus
@@ -94,7 +103,7 @@ vectara query 12 'Vectara allows me to search for anything, right?' --top_k=5  #
 vectara reset_corpus 12 # corpurs_id = 12
 ```
 
-### Web interface via Funix
+## The GUI client via Funix
 
 The SDK can be converted into a web interface via [Funix](http://funix.io). You can drag and drop to add a file to your Vectara corpus.
 
@@ -147,6 +156,19 @@ After auto-layout, the pods and scopes are organized by a collision-free algorit
 5. From document **codepod.md** (matchness=0.6460015):
   _...Organize your Canvas with scopes..._
 ```
+
+## This SDK/CLI/GUI vs. Vectara's official RESTFul API
+* Type less and more done. No boilerplate code.
+* Copy-and-pastable examples and Jupyter notebooks to jumpstart you. 
+* Forget about low-level details, e.g., all metadata fields are automatically set to filterable -- under construction. 
+* More ways to interact
+  * Command line interface (CLI)
+  * GUI powered by [Funix.io]http://Funix.io) for quickly building web apps that ordinary people can use.
+* More features: 
+  * Upload an entire folder. 
+  * Stylish Markdown printout for query response (see [`demo_simple.ipynb`](./demo_simple.ipynb)).
+  * Log user feedback from the GUI in a local SQLite database for evaluating the quality of search and RAG. 
+  * Pairable with [LlamaKey.ai](http://llamakey.ai) or any API router to manage API keys and throttle requests.
 
 ## Questions
 
