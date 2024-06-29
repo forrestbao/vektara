@@ -1,8 +1,8 @@
 #%% 
-from vectara import vectara, post_process_query_result
+from vectara import Vectara, post_process_query_result
 import json
 
-client = vectara(
+client = Vectara(
     api_key="ABC", 
     customer_id="123"
 ) # manually set the API key and customer ID instead of getting them from environment variables.

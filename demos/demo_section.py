@@ -1,7 +1,7 @@
 #%% 
-from vectara import vectara
+from vectara import Vectara
 
-client = vectara()
+client = Vectara()
 
 corpus_id =12
 client.reset_corpus(corpus_id)

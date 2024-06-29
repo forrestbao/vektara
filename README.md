@@ -10,6 +10,10 @@
 pip install vectara # Stable
 # OR
 pip install "git+https://github.com/forrestbao/vectara-python-cli.git" # Nightly
+# OR
+# Development mode where local changes are reflected immediately
+git clone https://github.com/forrestbao/vectara-python-cli.git
+pip install -e . 
 ```
 
 ## Hello, world!

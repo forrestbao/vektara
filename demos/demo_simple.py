@@ -1,6 +1,6 @@
-from vectara import vectara, post_process_query_result
+from vectara import Vectara, post_process_query_result
 
-client = vectara() # get credentials from environment variables 
+client = Vectara() # get credentials from environment variables 
 
 corpus_id = client.create_corpus('America, the Beautiful') # create a new corpus
 
