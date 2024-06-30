@@ -1,5 +1,5 @@
 
-Reference of `vectara`
+Reference of ``vectara``
 ==================================
 
 .. include::
@@ -13,10 +13,10 @@ Here are the classes used by the `Vectara` class.
 .. automodule:: vectara
 .. autoclass:: Filter
 
-The `Vectara` class
+The ``Vectara`` class
 --------------------
 
-The `Vectara` class is the main offering of the `vectara` package. It allows you to establish a connection to the Vectara service, upload data, and make queries.
+The ``Vectara`` class is the main offering of the ``vectara`` package. It allows you to establish a connection to the Vectara service, upload data, and make queries.
 
 .. automodule:: vectara
 .. autoclass:: Vectara
