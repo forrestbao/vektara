@@ -24,14 +24,16 @@ import textwrap
 import pydantic 
 
 # @funix_class(disable=True)
-class Filter(pydantic.BaseModel):
-    """A filter to be set on a corpus.
-    """
-    name: str
-    type: Literal['str', 'float', 'int', 'bool']
-    level: Literal['doc', 'part']
-    description: str = ''
-    index: bool = False
+# class Filter(pydantic.BaseModel):
+#     """A filter to be set on a corpus.
+#     """
+#     name: str
+#     type: Literal['str', 'float', 'int', 'bool']
+#     level: Literal['doc', 'part']
+#     description: str = ''
+#     index: bool = False
+
+from .data_types import Filter
 
 import sqlite3
 con = sqlite3.connect("feedback.db", check_same_thread=False)
@@ -101,10 +103,10 @@ class Vectara():
 
         Examples
         ------------
-        >>> import vectara
-        >>> client = vectara.vectara() # get default credentials from environment variables
-        >>> client = vectara.vectara(api_key='abc', customer_id='123') # pass in credentials for using Personal API key
-        >>> client = vectara(client_id='abc', client_secret='xyz', customer_id='123') # pass in credentials for using OAuth2
+        >>> from vectara import Vectara
+        >>> V = Vectara() # get default credentials from environment variables
+        >>> V = Vectara(api_key='abc', customer_id='123') # pass in credentials for using Personal API key
+        >>> V = Vectara(client_id='abc', client_secret='xyz', customer_id='123') # pass in credentials for using OAuth2
 
         Parameters
         --------------
@@ -240,7 +242,8 @@ class Vectara():
 
         Examples
         ------------
-        >>> corpus_id = client.create_corpus('America, the Beautiful') # create a new corpus called 'America, the Beautiful'
+        >>> from vectara import Vectara
+        >>> corpus_id = V.create_corpus('America, the Beautiful') # create a new corpus called 'America, the Beautiful'
 
         Parameters
         ------------
@@ -297,9 +300,9 @@ class Vectara():
 
         Examples
         ------------
-        >>> import vectara
-        >>> client = vectara.vectara() # get default credentials from environment variables
-        >>> client.reset_corpus(11) # reset the corpus with ID 11
+        >>> from vectara import Vectara
+        >>> V = Vectara() # get default credentials from environment variables
+        >>> V.reset_corpus(11) # reset the corpus with ID 11
 
         Parameters
         ------------
@@ -355,9 +358,9 @@ class Vectara():
 
         Examples
         ------------
-        >>> import vectara
-        >>> client = vectara.vectara() # get default credentials from environment variables
-        >>> client.list_documents(11, numResults=5) # list the first 5 documents in the corpus with ID 11
+        >>> from vectara import Vectara
+        >>> V = Vectara() # get default credentials from environment variables
+        >>> V.list_documents(11, numResults=5) # list the first 5 documents in the corpus with ID 11
 
         Parameters
         ------------
@@ -403,6 +406,38 @@ class Vectara():
 
         return response.json()
 
+    def delete_document(self, corpus_id: int, doc_id: str) -> dict:
+        """Delete a document specified by ``doc_id`` from a corpus specified by ``corpus_id``.
+
+        Examples
+        ------------
+        >>> from vectara import Vectara
+        >>> V = Vectara() # get default credentials from environment variables
+        >>> V.delete_document(11, 'we the people') # delete the document with ID 'we the people' from the corpus with ID 11
+        """
+
+        url = f"{self.base_url}/v1/delete-doc"
+
+        headers = {}
+
+        if self.api_key:
+            headers["x-api-key"] = self.api_key
+        else:
+            headers["Authorization"] = f"Bearer {self.jwt_token}"
+
+        payload = {
+            "corpusId": corpus_id,
+            "documentId": doc_id
+        }
+
+        response = requests.post(
+            url,
+            headers=headers,
+            data=json.dumps(payload)
+            )
+
+        return response.json()
+
     # @funix_method(disable=True)
     def upload(self,
             corpus_id: int,
@@ -415,11 +450,12 @@ class Vectara():
 
         Examples
         ------------
-        >>> client = vectara.vectara() # get default credentials from environment variables
-        >>> client.upload(corpus_id, 'test_data/consitution_united_states.txt') # upload one file
-        >>> client.upload(corpus_id, ['test_data/consitution_united_states.txt', 'test_data/declaration_of_independence.txt'])  # upload a list of files
-        >>> client.upload(corpus_id, "test_data") # upload all files in a folder, no recursion
-        >>> client.upload(
+        >>> from vectara import Vectara 
+        >>> V = Vectara() # get default credentials from environment variables
+        >>> V.upload(corpus_id, 'test_data/consitution_united_states.txt') # upload one file
+        >>> V.upload(corpus_id, ['test_data/consitution_united_states.txt', 'test_data/declaration_of_independence.txt'])  # upload a list of files
+        >>> V.upload(corpus_id, "test_data") # upload all files in a folder, no recursion
+        >>> V.upload(
                 corpus_id = 11,
                 source = 'test_data/consitution_united_states.txt',
                 doc_id='we the people',
@@ -430,7 +466,7 @@ class Vectara():
                     },
                 verbose=True
             )
-        >>> client.upload(
+        >>> V.upload(
                 corpus_id = 11,
                 source = ['test_data/consitution_united_states.txt', 'test_data/declaration_of_independence.txt', 'test_data/gettysburg_address.txt'],
                 doc_id=[
@@ -640,9 +676,9 @@ class Vectara():
 
         Examples
         ------------
-        >>> import vectara
-        >>> client = vectara.vectara() # get default credentials from environment variables
-        >>> client.query(
+        >>> from vectara import Vectara
+        >>> V = Vectara() # get default credentials from environment variables
+        >>> V.query(
                 corpus_id,
                 "What if the government fails to protect your rights?",
                 metadata_filter="doc.id = 'we the people'",
@@ -809,9 +845,9 @@ class Vectara():
 
         Examples
         ------------
-        >>> import vectara
-        >>> client = vectara.vectara() # get default credentials from environment variables
-        >>> client.add_sections(
+        >>> from vectara import Vectara
+        >>> V = Vectara() # get default credentials from environment variables
+        >>> V.add_sections(
                 corpus_id = 11,
                 sections = [
                     "I have one TV. ",
@@ -917,6 +953,25 @@ class Vectara():
         This is for experts. A document is a collection of chunks. Each chunk is a unit in retrieval.
 
         The difference between this method and ``create_document_from_sections`` is that in this method, you can control the chunking of texts -- a chunk you upload is the retrieval unit -- and all chunks are at the same level, while in ``create_document_from_sections``, you cannot control the chunking of texts and the sections can be hierarchical (although currently only one level of hierarchy is supported in this SDK).
+
+        Examples
+        ------------
+        >>> from vectara import Vectara
+        >>> V = Vectara() # get default credentials from environment variables
+        >>> V.create_document_from_chunks(
+                corpus_id = 11,
+                chunks = [
+                    "I have one TV. ",
+                    "Ich habe einen TV."
+                ],
+                chunk_metadata = [
+                    {"language": "English"},
+                    {"language": "German"}
+                ],
+                doc_id = "my apartment",
+                doc_metadata = {"genre": "life"},
+                verbose = True
+            )
 
         Parameters
         -----------
@@ -1088,6 +1143,17 @@ class Vectara():
         ---------
             int | dict
                 A job ID if the request is successful. Else, the response as a nested Python dict for further inspection.
+
+        Examples 
+        ------------
+
+        >>> from vectara import Vectara, Filter
+        >>> V = Vectara() # get default credentials from environment variables
+        >>> filters = [
+                Filter(name="country", type='str', level='doc', index=True),
+                Filter(name="note", type='str', level='part', index=False)
+            ]
+        >>> V.set_corpus_filters(2, filters)
 
         References
         ------------

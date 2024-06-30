@@ -1,7 +1,7 @@
 # An UNofficial Python SDK and CLI/GUI client for Vectara's RAG platform
 
 <div align="center">
-<h3> [![PyPI version](https://badge.fury.io/py/vectara.svg)](https://badge.fury.io/py/vectara)|  <a href="https://vectara-python-cli.readthedocs.io/en/latest/">Reference Manual</a> </h3>
+<h3> [![PyPI version](https://badge.fury.io/py/vectara.svg)](https://badge.fury.io/py/vectara) |  <a href="https://vectara-python-cli.readthedocs.io/en/latest/">Reference Manual</a>  </h3>
 </div>
 
 ## Installation
@@ -26,7 +26,7 @@ Here are the basic steps in RAG:
 ```python
 import vectara
 
-client = vectara.vectara() # get credentials from environment variables 
+client = vectara.Vectara() # get credentials from environment variables 
 
 corpus_id = client.create_corpus('founding documents of the US')
 
@@ -67,8 +67,10 @@ Alternatively, you can pass in your credentials as arguments when [initializing 
 
 ## Using the Python SDK 
 
-The [hello, world example above](#hello-world) shows how to add PDF files to a corpus and getting an answer about the knowledge in the PDF. 
-More examples can be found in the `./demos` folder. 
+Here are the resources to learn the Python SDK: 
+1. [Reference manual](https://vectara-python-cli.readthedocs.io/en/latest/)
+2. [Crash course](https://vectara-python-cli.readthedocs.io/en/latest/crash_course.html)
+3. [Demos](./demos)
 
 The SDK supports the following operations. Detailed usages can be found in the [reference manual](https://vectara-python-cli.readthedocs.io/en/latest/). 
 1. Create a corpus 

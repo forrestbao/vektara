@@ -20,8 +20,13 @@ release = '0.0.3'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx_rtd_theme',
-    'sphinx.ext.napoleon'
+    'sphinx.ext.napoleon',
+    'myst_parser',
+    'sphinx_markdown_tables',
+    'sphinx.ext.autosectionlabel',
+    'sphinxcontrib.mermaid'
 ]
+autosectionlabel_prefix_document = True
 
 templates_path = ['_templates']
 exclude_patterns = []
@@ -34,6 +39,6 @@ autodoc_member_order = 'bysource'
 # html_theme = 'alabaster'
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
-# html_css_files = [
-#     'custom.css',
-# ]
+html_css_files = [
+    'custom.css',
+]
