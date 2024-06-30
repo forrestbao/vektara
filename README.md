@@ -1,7 +1,12 @@
 # An UNofficial Python SDK and CLI/GUI client for Vectara's RAG platform
 
 <div align="center">
-<h3> [![PyPI version](https://badge.fury.io/py/vectara.svg)](https://badge.fury.io/py/vectara) |  <a href="https://vectara-python-cli.readthedocs.io/en/latest/">Reference Manual</a>  </h3>
+<h3>
+
+[![PyPI version](https://badge.fury.io/py/vectara.svg)](https://badge.fury.io/py/vectara)
+[Reference Manual](https://vectara-python-cli.readthedocs.io/en/latest/)
+
+</h3>
 </div>
 
 ## Installation
@@ -13,28 +18,28 @@ pip install "git+https://github.com/forrestbao/vectara-python-cli.git" # Nightly
 # OR
 # Development mode where local changes are reflected immediately
 git clone https://github.com/forrestbao/vectara-python-cli.git
-pip install -e . 
+pip install -e .
 ```
 
 ## Hello, world!
 
-Here are the basic steps in RAG: 
+Here are the basic steps in RAG:
 1. Creating a corpus, a collection of documents.
-2. Ingestion: upload documents to a corpus. 
+2. Ingestion: upload documents to a corpus.
 3. Querying: ask questions to the corpus.
 
 ```python
 import vectara
 
-client = vectara.Vectara() # get credentials from environment variables 
+client = vectara.Vectara() # get credentials from environment variables
 
 corpus_id = client.create_corpus('founding documents of the US')
 
-client.upload(corpus_id, './test_data/US_Constition.txt') 
-client.upload(corpus_id, './test_data/Declaration_of_Independence.txt') 
+client.upload(corpus_id, './test_data/US_Constition.txt')
+client.upload(corpus_id, './test_data/Declaration_of_Independence.txt')
 
-client.query(corpus_id, 'What should I do if the government becomes unjust?') 
-``` 
+client.query(corpus_id, 'What should I do if the government becomes unjust?')
+```
 
 ## Before you start: credentials
 
@@ -44,7 +49,7 @@ This client supports authentication in both Vectara's [Personal API key](https:/
 
 ### Setting up credentials
 
-Following the convention of OpenAI's client, we recommend setting credentials as environment variables. You can save them as a bash script and simply `source` it before using the SDK. 
+Following the convention of OpenAI's client, we recommend setting credentials as environment variables. You can save them as a bash script and simply `source` it before using the SDK.
 
 ```bash
 export VECTARA_CUSTOMER_ID=123 # Required regardless of the authentication method
@@ -63,19 +68,19 @@ export VECTARA_BASE_URL="http://127.0.0.1:8000/vectara"
 export VECTARA_PROXY_MODE=true # Enable proxy mode
 ```
 
-Alternatively, you can pass in your credentials as arguments when [initializing the client](https://vectara-python-cli.readthedocs.io/en/latest/#vectara.vectara.__init__). 
+Alternatively, you can pass in your credentials as arguments when [initializing the client](https://vectara-python-cli.readthedocs.io/en/latest/#vectara.vectara.__init__).
 
-## Using the Python SDK 
+## Using the Python SDK
 
-Here are the resources to learn the Python SDK: 
+Here are the resources to learn the Python SDK:
 1. [Reference manual](https://vectara-python-cli.readthedocs.io/en/latest/)
 2. [Crash course](https://vectara-python-cli.readthedocs.io/en/latest/crash_course.html)
 3. [Demos](./demos)
 
-The SDK supports the following operations. Detailed usages can be found in the [reference manual](https://vectara-python-cli.readthedocs.io/en/latest/). 
-1. Create a corpus 
+The SDK supports the following operations. Detailed usages can be found in the [reference manual](https://vectara-python-cli.readthedocs.io/en/latest/).
+1. Create a corpus
 2. Reset a corpus (cleans out documents in a corpus but keeps the corpus and metadata)
-3. List the documents in a corpus 
+3. List the documents in a corpus
 4. Add documents to a corpus
    * From local file(s)/folder
    * From a list of chunks (`str`) without any hierarchy
@@ -86,7 +91,7 @@ The SDK supports the following operations. Detailed usages can be found in the [
 
 ## Using the CLI client
 
-The features in the CLI client are similar to the SDK. 
+The features in the CLI client are similar to the SDK.
 To learn the command line usage, run `vectara --help`.
 
 You must [obtain and set up your Vectara credentials as environment variables](#before-you-start-credentials) before using the command line interface.
@@ -115,7 +120,7 @@ The SDK can be converted into a web interface via [Funix](http://funix.io). You 
 
 ```python
 pip install funix
-funix src/vectara/__init__.py 
+funix src/vectara/__init__.py
 ```
 
 Then you can access the web interface at `http://localhost:3000` (the port number maybe different if port 3000 is occupied).
@@ -144,7 +149,7 @@ The query results are typeset Markdown ready to be rendered. A query result incl
 To rearrange objects, you can utilize the "direction" attribute in a Funix decorator [1]. Manually resizing and positioning objects can be a tedious and inefficient process [2]. Another approach is to use a collision-free algorithm for auto-layout, where scopes will be resized to fit the objects inside [4]. An example of arranging objects in a column-reverse direction can be seen in the ChatGPT multiturn app [3]. Additionally, organizing your canvas with scopes can help in rearranging objects effectively [5]. Remember to experiment with these methods to find the best arrangement for your specific needs.
 
 ### References:
-    
+
 1. From document **funix.md** (matchness=0.673933):
   _...You can change their order and orientation using the "direction" attribute in a Funix decorator...._
 
@@ -165,15 +170,15 @@ After auto-layout, the pods and scopes are organized by a collision-free algorit
 
 ## This SDK/CLI/GUI vs. Vectara's official RESTFul API
 * Type less and more done. No boilerplate code.
-* Copy-and-pastable examples and Jupyter notebooks to jumpstart you. 
-* Forget about low-level details, e.g., all metadata fields are automatically set to filterable -- under construction. 
+* Copy-and-pastable examples and Jupyter notebooks to jumpstart you.
+* Forget about low-level details, e.g., all metadata fields are automatically set to filterable -- under construction.
 * More ways to interact
   * Command line interface (CLI)
   * GUI powered by [Funix.io]http://Funix.io) for quickly building web apps that ordinary people can use.
-* More features: 
-  * Upload an entire folder. 
+* More features:
+  * Upload an entire folder.
   * Stylish Markdown printout for query response (see [`demo_simple.ipynb`](./demo_simple.ipynb)).
-  * Log user feedback from the GUI in a local SQLite database for evaluating the quality of search and RAG. 
+  * Log user feedback from the GUI in a local SQLite database for evaluating the quality of search and RAG.
   * Pairable with [LlamaKey.ai](http://llamakey.ai) or any API router to manage API keys and throttle requests.
 
 ## Questions
