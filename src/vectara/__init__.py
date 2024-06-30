@@ -237,7 +237,7 @@ class Vectara():
         return jwt_token
 
     # @funix_method(title="Create corpus", print_to_web=True)
-    def create_corpus(self, corpus_name: str, corpus_description: str = "") -> int | dict:
+    def create_corpus(self, corpus_name: str, corpus_description: str = "", verbose=False) -> int | dict:
         """Create a corpus, given a ``corpus_name`` and an optional ``corpus_description``.
 
         Examples
@@ -282,16 +282,26 @@ class Vectara():
         else:
             headers["Authorization"] = f"Bearer {self.jwt_token}"
 
+        if verbose:
+            print ("Making a CREATE CORPUS request")
+            print ("URL: ", url)
+            print ("Headers: ", headers)
+            print ("Payload: ", payload)
+
         response = requests.post(url, data=payload, headers=headers)
 
         if response.status_code == 200:
             corpus_id = response.json()['corpusId']
             print("New corpus created, corpus ID is:", corpus_id)
             print("Please write down this corpus ID. You will need it to upload files to it and to query against it.")
+            if verbose:
+                print ("Response from the CREATE CORPUS request: ",)
+                print(json.dumps(response.json(), indent=2))
             return corpus_id
         else:
             print("Corpus creation failed. ")
-            print(response.json())
+            print ("Response from the CREATE CORPUS request: ",)
+            print(json.dumps(response.json(), indent=2))
             return response.json()
 
     # @funix_method(title="Reset corpus", print_to_web=True)
