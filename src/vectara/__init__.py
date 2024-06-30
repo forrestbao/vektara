@@ -8,21 +8,32 @@
 
 
 import json, os, io, time
-from typing import List, Literal, Dict
+from typing import List, Literal, Dict, TypedDict
 
 import requests
-
 import dotenv
-
 from tqdm import tqdm
 from IPython.display import Markdown, display_markdown
 import markdown, bs4
 import textwrap
 
-from funix import funix_class, funix_method, funix
-from funix.session import set_global_variable
-from funix.hint import BytesFile
-from typing import Literal
+# from funix import funix_class, funix_method, funix
+# from funix.session import set_global_variable
+# from funix.hint import BytesFile
+
+import pydantic 
+
+# @funix_class(disable=True)
+# class Filter(pydantic.BaseModel):
+#     """A filter to be set on a corpus.
+#     """
+#     name: str
+#     type: Literal['str', 'float', 'int', 'bool']
+#     level: Literal['doc', 'part']
+#     description: str = ''
+#     index: bool = False
+
+from .data_types import Filter
 
 import sqlite3
 con = sqlite3.connect("feedback.db", check_same_thread=False)
@@ -44,37 +55,37 @@ con.commit()
 
 vectara_config = ".vectara_config"
 
-@funix(disable=True)
+# @funix(disable=True)
 def md2text(md: str):
     html = markdown.markdown(md)
     soup = bs4.BeautifulSoup(html, features='html.parser')
     return soup.get_text()
 
-@funix_class()
-class vectara():
-    @funix_method(
-        title="Initialize Vectara",
-        print_to_web=True,
-        widgets= { # api_key and client_secret must be str to be compatible with Google Fire.
-                   # If using Funix only, we can set them to ipywidgets.password
-            'api_key': 'password',
-            'client_secret': 'password',
-        },
-        conditional_visible=[
-            {
-                "when": {
-                    "use_oauth2": True
-                },
-                "show": ["client_id", "client_secret"]
-            },
-            {
-                "when": {
-                    "use_oauth2": False
-                },
-                "show": ["api_key"]
-            }
-        ]
-    )
+# @funix_class()
+class Vectara():
+    # @funix_method(
+        # title="Initialize Vectara",
+        # print_to_web=True,
+        # widgets= { # api_key and client_secret must be str to be compatible with Google Fire.
+        #            # If using Funix only, we can set them to ipywidgets.password
+        #     'api_key': 'password',
+        #     'client_secret': 'password',
+        # },
+        # conditional_visible=[
+        #     {
+        #         "when": {
+        #             "use_oauth2": True
+        #         },
+        #         "show": ["client_id", "client_secret"]
+        #     },
+        #     {
+        #         "when": {
+        #             "use_oauth2": False
+        #         },
+        #         "show": ["api_key"]
+        #     }
+        # ]
+    # )
     def __init__(self,
                 base_url: str = "https://api.vectara.io",
                 customer_id: str = None,
@@ -92,10 +103,10 @@ class vectara():
 
         Examples
         ------------
-        >>> import vectara
-        >>> client = vectara.vectara() # get default credentials from environment variables
-        >>> client = vectara.vectara(api_key='abc', customer_id='123') # pass in credentials for using Personal API key
-        >>> client = vectara(client_id='abc', client_secret='xyz', customer_id='123') # pass in credentials for using OAuth2
+        >>> from vectara import Vectara
+        >>> V = Vectara() # get default credentials from environment variables
+        >>> V = Vectara(api_key='abc', customer_id='123') # pass in credentials for using Personal API key
+        >>> V = Vectara(client_id='abc', client_secret='xyz', customer_id='123') # pass in credentials for using OAuth2
 
         Parameters
         --------------
@@ -180,7 +191,7 @@ class vectara():
 
         self.last_result: dict = {}
 
-    @funix_method(disable=True)
+    # @funix_method(disable=True)
     def acquire_jwt_token(self):
         """Acquire/renew a JWT token. For OAuth2 only. The JWT token expires after 30 minutes. If you use OAuth2, you need to call this method every 30 minutes to get a new JWT token.
 
@@ -225,13 +236,14 @@ class vectara():
 
         return jwt_token
 
-    @funix_method(title="Create corpus", print_to_web=True)
+    # @funix_method(title="Create corpus", print_to_web=True)
     def create_corpus(self, corpus_name: str, corpus_description: str = "") -> int | dict:
         """Create a corpus, given a ``corpus_name`` and an optional ``corpus_description``.
 
         Examples
         ------------
-        >>> corpus_id = client.create_corpus('America, the Beautiful') # create a new corpus called 'America, the Beautiful'
+        >>> from vectara import Vectara
+        >>> corpus_id = V.create_corpus('America, the Beautiful') # create a new corpus called 'America, the Beautiful'
 
         Parameters
         ------------
@@ -282,15 +294,15 @@ class vectara():
             print(response.json())
             return response.json()
 
-    @funix_method(title="Reset corpus", print_to_web=True)
+    # @funix_method(title="Reset corpus", print_to_web=True)
     def reset_corpus(self, corpus_id: int) -> int | dict:
         """Reset a corpus specified by ``corpus_id``.
 
         Examples
         ------------
-        >>> import vectara
-        >>> client = vectara.vectara() # get default credentials from environment variables
-        >>> client.reset_corpus(11) # reset the corpus with ID 11
+        >>> from vectara import Vectara
+        >>> V = Vectara() # get default credentials from environment variables
+        >>> V.reset_corpus(11) # reset the corpus with ID 11
 
         Parameters
         ------------
@@ -346,9 +358,9 @@ class vectara():
 
         Examples
         ------------
-        >>> import vectara
-        >>> client = vectara.vectara() # get default credentials from environment variables
-        >>> client.list_documents(11, numResults=5) # list the first 5 documents in the corpus with ID 11
+        >>> from vectara import Vectara
+        >>> V = Vectara() # get default credentials from environment variables
+        >>> V.list_documents(11, numResults=5) # list the first 5 documents in the corpus with ID 11
 
         Parameters
         ------------
@@ -394,7 +406,39 @@ class vectara():
 
         return response.json()
 
-    @funix_method(disable=True)
+    def delete_document(self, corpus_id: int, doc_id: str) -> dict:
+        """Delete a document specified by ``doc_id`` from a corpus specified by ``corpus_id``.
+
+        Examples
+        ------------
+        >>> from vectara import Vectara
+        >>> V = Vectara() # get default credentials from environment variables
+        >>> V.delete_document(11, 'we the people') # delete the document with ID 'we the people' from the corpus with ID 11
+        """
+
+        url = f"{self.base_url}/v1/delete-doc"
+
+        headers = {}
+
+        if self.api_key:
+            headers["x-api-key"] = self.api_key
+        else:
+            headers["Authorization"] = f"Bearer {self.jwt_token}"
+
+        payload = {
+            "corpusId": corpus_id,
+            "documentId": doc_id
+        }
+
+        response = requests.post(
+            url,
+            headers=headers,
+            data=json.dumps(payload)
+            )
+
+        return response.json()
+
+    # @funix_method(disable=True)
     def upload(self,
             corpus_id: int,
             source: str | List[str],
@@ -406,11 +450,12 @@ class vectara():
 
         Examples
         ------------
-        >>> client = vectara.vectara() # get default credentials from environment variables
-        >>> client.upload(corpus_id, 'test_data/consitution_united_states.txt') # upload one file
-        >>> client.upload(corpus_id, ['test_data/consitution_united_states.txt', 'test_data/declaration_of_independence.txt'])  # upload a list of files
-        >>> client.upload(corpus_id, "test_data") # upload all files in a folder, no recursion
-        >>> client.upload(
+        >>> from vectara import Vectara 
+        >>> V = Vectara() # get default credentials from environment variables
+        >>> V.upload(corpus_id, 'test_data/consitution_united_states.txt') # upload one file
+        >>> V.upload(corpus_id, ['test_data/consitution_united_states.txt', 'test_data/declaration_of_independence.txt'])  # upload a list of files
+        >>> V.upload(corpus_id, "test_data") # upload all files in a folder, no recursion
+        >>> V.upload(
                 corpus_id = 11,
                 source = 'test_data/consitution_united_states.txt',
                 doc_id='we the people',
@@ -421,7 +466,7 @@ class vectara():
                     },
                 verbose=True
             )
-        >>> client.upload(
+        >>> V.upload(
                 corpus_id = 11,
                 source = ['test_data/consitution_united_states.txt', 'test_data/declaration_of_independence.txt', 'test_data/gettysburg_address.txt'],
                 doc_id=[
@@ -474,44 +519,44 @@ class vectara():
             exit()
         return r
 
-    @funix_method(title="Upload file")
-    def upload_file_from_funix(self, corpus_id: int, filebuf: BytesFile, doc_id: str = "", metadata:str = "", verbose: bool = False) -> Markdown:
-        """Drag and drop a file to Funix frontend to add it to a corpus specified by corpus_id
-        """
-        url = f"{self.base_url}/v1/upload?c={self.customer_id}&o={corpus_id}"
+    # @funix_method(title="Upload file")
+    # def upload_file_from_funix(self, corpus_id: int, filebuf: BytesFile, doc_id: str = "", metadata:str = "", verbose: bool = False) -> Markdown:
+    #     """Drag and drop a file to Funix frontend to add it to a corpus specified by corpus_id
+    #     """
+    #     url = f"{self.base_url}/v1/upload?c={self.customer_id}&o={corpus_id}"
 
-        if doc_id == "":
-            doc_id = "A file uploaded via Funix"
+    #     if doc_id == "":
+    #         doc_id = "A file uploaded via Funix"
 
-        file_payload = {
-            "file": (doc_id, io.BytesIO(filebuf), 'application/octet-stream'),
-            "doc_metadata": (None, json.dumps(metadata), 'application/json')
-        }
+    #     file_payload = {
+    #         "file": (doc_id, io.BytesIO(filebuf), 'application/octet-stream'),
+    #         "doc_metadata": (None, json.dumps(metadata), 'application/json')
+    #     }
 
-        headers = {}
+    #     headers = {}
 
-        if self.api_key:
-            headers["x-api-key"] = self.api_key
-        else:
-            headers["Authorization"] = f"Bearer {self.jwt_token}"
+    #     if self.api_key:
+    #         headers["x-api-key"] = self.api_key
+    #     else:
+    #         headers["Authorization"] = f"Bearer {self.jwt_token}"
 
-        print(f"Uploading file **{doc_id}** to corpus **{corpus_id}**...")
+    #     print(f"Uploading file **{doc_id}** to corpus **{corpus_id}**...")
 
-        response = requests.post(
-            url,
-            headers=headers,
-            files=[file_payload]
-        )
+    #     response = requests.post(
+    #         url,
+    #         headers=headers,
+    #         files=[file_payload]
+    #     )
 
-        if response.status_code == 200:
-            if verbose:
-                return "### **Success.** " + f"```{response.json()}```"
-            else:
-                return "### **Success.** "
-        else:
-            return "### **Success.** " + f"```{response.json()}```"
+    #     if response.status_code == 200:
+    #         if verbose:
+    #             return "### **Success.** " + f"```{response.json()}```"
+    #         else:
+    #             return "### **Success.** "
+    #     else:
+    #         return "### **Success.** " + f"```{response.json()}```"
 
-    @funix_method(disable=True)
+    # @funix_method(disable=True)
     def upload_file(self, corpus_id: int, filepath: str, doc_id: str = "", metadata: Dict = {}, verbose: bool = False) -> Dict:
         """Upload a file from local storage to a corpus specified by corpus_id
 
@@ -557,7 +602,7 @@ class vectara():
 
         return response.json()
 
-    @funix_method(disable=True)
+    # @funix_method(disable=True)
     def upload_files(self, corpus_id, filepaths: List[str], doc_ids: List[str] = [], metadata: Dict | List[Dict] = {}, verbose: bool = False) -> List[Dict]:
         """Upload a list of files from local storage
 
@@ -592,7 +637,7 @@ class vectara():
 
         return responses
 
-    @funix_method(disable=True)
+    # @funix_method(disable=True)
     def upload_folder(self, corpus_id: str, dirpath: str, doc_ids: List[str] = [], metadata: Dict | List[Dict] = {}, verbose: bool = False) -> List[Dict]:
         """Upload all files from a directory
 
@@ -614,7 +659,7 @@ class vectara():
         responses.append(response)
         return responses
 
-    @funix_method(disable=True)
+    # @funix_method(disable=True)
     def query(self,
               corpus_id: int,
               query: str,
@@ -631,9 +676,9 @@ class vectara():
 
         Examples
         ------------
-        >>> import vectara
-        >>> client = vectara.vectara() # get default credentials from environment variables
-        >>> client.query(
+        >>> from vectara import Vectara
+        >>> V = Vectara() # get default credentials from environment variables
+        >>> V.query(
                 corpus_id,
                 "What if the government fails to protect your rights?",
                 metadata_filter="doc.id = 'we the people'",
@@ -749,41 +794,41 @@ class vectara():
 
             return response.json()
 
-    @funix_method(title="Query", keep_last = True)
-    def query_funix(self, corpus_id: int,
-                    query: str,
-                    top_k: int = 5,
-                    lang: str = 'auto') -> Markdown:
-        result = post_process_query_result(self.query(corpus_id, query, top_k, lang))
-        set_global_variable("last_markdown_result", "\n".join(result.splitlines()[:-3]))
-        return result
+    # @funix_method(title="Query", keep_last = True)
+    # def query_funix(self, corpus_id: int,
+    #                 query: str,
+    #                 top_k: int = 5,
+    #                 lang: str = 'auto') -> Markdown:
+    #     result = post_process_query_result(self.query(corpus_id, query, top_k, lang))
+    #     set_global_variable("last_markdown_result", "\n".join(result.splitlines()[:-3]))
+    #     return result
 
-    @funix_method(
-        title="Feedback",
-        session_description="last_markdown_result",
-    )
-    def feedback(self, consistent: Literal["Yes", "No"]) -> str:
-        if not self.last_result:
-            return "No query result to provide feedback for."
-        is_consistent = True if consistent == "Yes" else False
-        cursor.execute("""
-        INSERT INTO feedback (question, corpus_id, top_k, lang, score, raw_response, consistent)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (
-            self.last_result['question'],
-            self.last_result['corpus_id'],
-            self.last_result['top_k'],
-            self.last_result['lang'],
-            self.last_result['score'],
-            json.dumps(self.last_result['raw_response'], ensure_ascii=False),
-            is_consistent
-        ))
-        con.commit()
-        set_global_variable("last_markdown_result", "")
-        self.last_result = {}
-        return "Thank you for your feedback."
+    # @funix_method(
+    #     title="Feedback",
+    #     session_description="last_markdown_result",
+    # )
+    # def feedback(self, consistent: Literal["Yes", "No"]) -> str:
+    #     if not self.last_result:
+    #         return "No query result to provide feedback for."
+    #     is_consistent = True if consistent == "Yes" else False
+    #     cursor.execute("""
+    #     INSERT INTO feedback (question, corpus_id, top_k, lang, score, raw_response, consistent)
+    #     VALUES (?, ?, ?, ?, ?, ?, ?)
+    #     """, (
+    #         self.last_result['question'],
+    #         self.last_result['corpus_id'],
+    #         self.last_result['top_k'],
+    #         self.last_result['lang'],
+    #         self.last_result['score'],
+    #         json.dumps(self.last_result['raw_response'], ensure_ascii=False),
+    #         is_consistent
+    #     ))
+    #     con.commit()
+    #     set_global_variable("last_markdown_result", "")
+    #     self.last_result = {}
+    #     return "Thank you for your feedback."
 
-    @funix(disable=True)
+    # @funix(disable=True)
     def create_document_from_sections(self,
             corpus_id: int,
             sections: List[str],
@@ -800,9 +845,9 @@ class vectara():
 
         Examples
         ------------
-        >>> import vectara
-        >>> client = vectara.vectara() # get default credentials from environment variables
-        >>> client.add_sections(
+        >>> from vectara import Vectara
+        >>> V = Vectara() # get default credentials from environment variables
+        >>> V.add_sections(
                 corpus_id = 11,
                 sections = [
                     "I have one TV. ",
@@ -895,7 +940,7 @@ class vectara():
 
         return response.json()
 
-    @funix(disable=True)
+    # @funix(disable=True)
     def create_document_from_chunks(self,
             corpus_id: int,
             chunks: List[str],
@@ -908,6 +953,25 @@ class vectara():
         This is for experts. A document is a collection of chunks. Each chunk is a unit in retrieval.
 
         The difference between this method and ``create_document_from_sections`` is that in this method, you can control the chunking of texts -- a chunk you upload is the retrieval unit -- and all chunks are at the same level, while in ``create_document_from_sections``, you cannot control the chunking of texts and the sections can be hierarchical (although currently only one level of hierarchy is supported in this SDK).
+
+        Examples
+        ------------
+        >>> from vectara import Vectara
+        >>> V = Vectara() # get default credentials from environment variables
+        >>> V.create_document_from_chunks(
+                corpus_id = 11,
+                chunks = [
+                    "I have one TV. ",
+                    "Ich habe einen TV."
+                ],
+                chunk_metadata = [
+                    {"language": "English"},
+                    {"language": "German"}
+                ],
+                doc_id = "my apartment",
+                doc_metadata = {"genre": "life"},
+                verbose = True
+            )
 
         Parameters
         -----------
@@ -961,7 +1025,7 @@ class vectara():
 
         return response.json()
 
-    @funix(disable=True)
+    # @funix(disable=True)
     def list_jobs(self,
             jobID: int = None,
             corpus_ids: List[int] = None,
@@ -1058,15 +1122,11 @@ class vectara():
 
         return response.json()
 
-    @funix(disable=True)
-    def add_corpus_filters(self,
+    # @funix(disable=True)
+    def set_corpus_filters(self,
             corpus_id: int,
-            name: str,
-            type: Literal['text', 'float', 'int', 'bool'],
-            level: Literal['document', 'part'],
-            description: str = "",
-            index: bool=False
-            ) -> int:
+            filters: List[Filter]
+            ) -> Dict:
 
         """Set the filters for a corpus.
 
@@ -1076,19 +1136,28 @@ class vectara():
                 the corpus ID to set filters for
             name: str
                 the name of the filter. must match a name in the metadata of the documents in the corpus.
-            description: str
-                (Optional) the description of the filter
-            type: Literal['text', 'float', 'int', 'bool']
-                the type of the filter
-            level: Literal['document', 'part']
-                the level of the filter
-            index: bool
-                whether to index the filter. Once indexed, searching on it can be faster.
+            filters: List[Filter]
+                a list of filters to set. Each filter is an instance of the Filter class.
 
         Returns
         ---------
             int | dict
                 A job ID if the request is successful. Else, the response as a nested Python dict for further inspection.
+
+        Examples 
+        ------------
+
+        >>> from vectara import Vectara, Filter
+        >>> V = Vectara() # get default credentials from environment variables
+        >>> filters = [
+                Filter(name="country", type='str', level='doc', index=True),
+                Filter(name="note", type='str', level='part', index=False)
+            ]
+        >>> V.set_corpus_filters(2, filters)
+
+        References
+        ------------
+            https://docs.vectara.com/docs/rest-api/replace-corpus-filter-attrs
         """
 
         url = f"{self.base_url}/v1/replace-corpus-filter-attrs"
@@ -1099,40 +1168,61 @@ class vectara():
         else:
             headers["Authorization"] = f"Bearer {self.jwt_token}"
 
-        type_mapping= {'text': 'TEXT', 'float': 'REAL', 'int': 'INTEGER', 'bool': 'BOOLEAN'}
+        type_mapping= {'str': 'TEXT', 'float': 'REAL', 'int': 'INTEGER', 'bool': 'BOOLEAN'}
 
-        level_mapping = {'document': 'DOCUMENT', 'part': 'DOCUMENT_PART'}
+        level_mapping = {'doc': 'DOCUMENT', 'part': 'DOCUMENT_PART'}
+
+        filterAttributes = []
+        for filter in filters:
+            filterAttributes.append(
+                {
+                    "name": filter.name,
+                    "description": filter.description,
+                    "index": filter.index,
+                    "type": f"FILTER_ATTRIBUTE_TYPE__{type_mapping.get(filter.type, filter.type)}",
+                    "level": f"FILTER_ATTRIBUTE_LEVEL__{level_mapping.get(filter.level, filter.level)}"
+                }
+            )
+
+        # payload = {
+        #     "corpusId": corpus_id,
+        #     "filterAttributes": [
+        #         {
+        #         "name": name,
+        #         "description": description,
+        #         "indexed": index,
+        #         "type": f"FILTER_ATTRIBUTE_TYPE__{type_mapping[type]}",
+        #         "level": f"FILTER_ATTRIBUTE_LEVEL__{level_mapping[level]}"
+        #         }
+        #     ]
+        # }
 
         payload = {
             "corpusId": corpus_id,
-            "filterAttributes": [
-                {
-                "name": name,
-                "description": description,
-                "indexed": index,
-                "type": f"FILTER_ATTRIBUTE_TYPE__{type_mapping[type]}",
-                "level": f"FILTER_ATTRIBUTE_LEVEL__{level_mapping[level]}"
-                }
-            ]
+            "filterAttributes": filterAttributes
         }
 
         response = requests.post(url, headers=headers, data=json.dumps(payload))
         response_json = response.json()
+        print(response_json)
         if response.status_code == 200:
             if 'jobId' in response_json and response_json['jobId']:
                 jobId = response_json['jobId']
             else:
-                print (response_json)
                 return response_json
         else:
-            print(response_json)
             return response_json
 
-        print (jobId)
+#  Error message from Vectara server: 
+# {'code': 3, 'message': 'proto: (line 1:140): invalid value for enum type: "FILTER_ATTRIBUTE_LEVEL__DOCUMENTxxx"', 'details': []}
+
+# Okay message from Vectara server:
+# {'status': None, 'jobId': 'SDIzYktHMzNHMlJpbm6wK2I0xqZ+o1x2Mx9DHkhNenaYmg=='}
 
         job_status = self.list_jobs(jobID=jobId)
         start_time = time.time()
-        print ("Updating filter attributes...jobID =", jobId)
+        print ("Updating filter attributes...This may take at least 2 minutes...\n jobID =", jobId)
+        dot_length = 0
         while job_status['job'][0]['state'] != 'JOB_STATE__COMPLETED':
             time.sleep(1)
             job_status = self.list_jobs(jobID=jobId)
@@ -1140,12 +1230,16 @@ class vectara():
                 print("Job done or not found. ")
                 break
             else:
-                print ("Updating...", job_status['job'][0]['state'], "elapsed time", time.time() - start_time, end="\r")
+                print ("Updating", "."*dot_length, "JobState:", job_status['job'][0]['state'], "  Elapsed time", int(time.time() - start_time), "(s)", end="\r")
+            
+            dot_length += 1
+            if dot_length >3:
+                dot_length = 0
 
-        print ("Done")
-        return jobId
+        print ("Filter(s) set for corpus:", corpus_id)
+        return response_json
 
-@funix(disable=True)
+# @funix(disable=True)
 def post_process_query_result(
     query_result: Dict,
     print_format: Literal['json', 'markdown'] = 'markdown',

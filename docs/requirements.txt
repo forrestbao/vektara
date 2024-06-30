@@ -10,3 +10,5 @@ IPython
 fire
 funix
 myst-parser
+sphinxcontrib.mermaid
+sphinx-markdown-tables

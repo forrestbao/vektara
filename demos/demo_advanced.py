@@ -1,15 +1,15 @@
 #%% 
-from vectara import vectara, post_process_query_result
+from vectara import Vectara, post_process_query_result
 import json
 
-client = vectara(
+V = Vectara(
     api_key="ABC", 
     customer_id="123"
 ) # manually set the API key and customer ID instead of getting them from environment variables.
 
-corpus_id = client.create_corpus('America, the Beautiful') # create a new corpus
+corpus_id = V.create_corpus('America, the Beautiful') # create a new corpus
 
-client.upload(
+V.upload(
     corpus_id, 
     'test_data/consitution_united_states.txt', 
     doc_id='we the people', 
@@ -20,14 +20,14 @@ client.upload(
         }, 
     verbose=True)
 
-client.query(
+V.query(
     corpus_id, 
     "What if the government fails to protect your rights?", 
     metadata_filter="doc.id = 'we the people'", 
     top_k=3, print_format='json')
 
 
-client.upload(
+V.upload(
     corpus_id, 
     ['test_data/consitution_united_states.txt', 'test_data/declaration_of_independence.txt', 'test_data/gettysburg_address.txt'], 
     doc_id=[
@@ -42,10 +42,10 @@ client.upload(
     ]
     )
 
-client.query(
+V.query(
     corpus_id, 
     "What if the government infringes your rights?", 
     top_k=3, 
     metadata_filter="doc.id = 'the war' or doc.id='the beginning'", print_format='json')
 
-client.reset_corpus(corpus_id) # delete all documents in the corpus
+V.reset_corpus(corpus_id) # delete all documents in the corpus
