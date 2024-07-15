@@ -1163,8 +1163,6 @@ class Vectara():
         ------------
             corpus_id: int
                 the corpus ID to set filters for
-            name: str
-                the name of the filter. must match a name in the metadata of the documents in the corpus.
             filters: List[Filter]
                 a list of filters to set. Each filter is an instance of the Filter class.
 
