@@ -33,7 +33,7 @@ import pydantic
 #     description: str = ''
 #     index: bool = False
 
-from .data_types import Filter
+from .data_types import Filter, Message, GeneratioConfig
 
 import sqlite3
 con = sqlite3.connect("feedback.db", check_same_thread=False)
@@ -674,9 +674,12 @@ class Vectara():
               corpus_id: int,
               query: str,
               top_k: int = 5,
+              offset: int = 0,
               lang: str = 'auto',
               contextConfig: dict = None,
-              return_summary: bool = True,
+              do_generation: bool = True,
+              LLM: Literal['GPT-4', 'GPT-3.5-Turbo', 'GPT-4-Turbo'] = 'GPT-3.5-Turbo', 
+              prompt_template_string: str="", 
               metadata_filter: str = "",
               print_format: Literal['json', 'markdown'] = '',
               jupyter_display: bool = False,
@@ -704,13 +707,18 @@ class Vectara():
             query: str
                 the query (question, search terms) to ask
             top_k: int
-                the number of most matching results to return and to summarize
+                the number of most matching results to return and to be used for generation
+            offset: int
+                the number of top results to skip. For pagination. Default: 0
             lang: str
                 the ISO 639-1 or ISO 639-3 language code for the language in which a summary is generated. Default: 'auto', letting the Vectara platform to determine.
             contextConfig: dict
                 See https://docs.vectara.com/docs/rest-api/query? for details
-            return_summary: bool
-                whether to return a summary of the top_k results
+            do_generation: bool
+                whether to use the retrieved results for generation. Default: True
+            LLM: Literal['GPT-4', 'GPT-3.5-Turbo', 'GPT-4-Turbo']
+                the language model to use for generation. Default: 'GPT-3.5-Turbo'
+            prompt_messages: List[Message]
             metadata_filter: str
                 Vectara's metadata filter to narrow down the search results. See https://docs.vectara.com/docs/learn/metadata-search-filtering/filter-overview and for details.
 
@@ -722,12 +730,17 @@ class Vectara():
         # TODO: Check whether token is expired.
         # TODO: Load JWT_Token from dotenv if in CLI mode.
 
+        LLM_to_vectara_prompt_name = {
+            'GPT-3.5-Turbo': 'vectara-experimental-summary-ext-2023-10-23-small', 
+        }
+
         url = f"{self.base_url}/v1/query"
         payload = {
                 "query": [
                     {
                         "query": query,
                         "numResults": top_k,
+                        "start": offset,
                         "corpusKey": [
                             {
                                 # "customerId": customer_id,
@@ -741,14 +754,19 @@ class Vectara():
         if contextConfig is not None: # add context
             payload["query"][0]["contextConfig"] = contextConfig
 
-        if return_summary: # add summary
-            payload["query"][0]["summary"] = [
-                {
-                    'maxSummarizedResults': top_k,
-                    'responseLang': lang,
-                    'factualConsistencyScore': True
-                }
-            ]
+        if do_generation or prompt_template_string != '': # add summary
+            generation_config = {
+                'summarizerPromptName': LLM_to_vectara_prompt_name[LLM],
+                'maxSummarizedResults': top_k,
+                'responseLang': lang,
+                'factualConsistencyScore': True
+            }
+
+            if prompt_template_string != "":
+                generation_config['promptText'] = prompt_template_string
+
+            
+            payload["query"][0]["summary"] = [generation_config]
 
         if metadata_filter != "": # add metadata filter
             payload["query"][0]["corpusKey"][0]["metadataFilter"] = metadata_filter
@@ -793,13 +811,12 @@ class Vectara():
                 "raw_response": response.json(),
             }
 
-            beautiful_content = post_process_query_result(
-                response.json(), 
-                print_format=print_format, 
-                jupyter_display=jupyter_display
-            )
-
-            if self.from_cli or verbose:    
+            if self.from_cli or print_format != '':
+                beautiful_content = post_process_query_result(
+                    response.json(), 
+                    print_format=print_format, 
+                    jupyter_display=jupyter_display
+                )
                 print(beautiful_content)
 
             return response.json()
@@ -957,7 +974,8 @@ class Vectara():
             chunk_metadata: List[Dict] = [],
             doc_id: str = "",
             doc_metadata: Dict = {},
-            verbose: bool = False) -> dict:
+            verbose: bool = False, 
+            silent: bool=False) -> dict:
         """Create a document in a corpus specified by ``corpus_id`` from a list of texts, each of which is a chunk of the document.
 
         This is for experts. A document is a collection of chunks. Each chunk is a unit in retrieval.
@@ -1022,7 +1040,8 @@ class Vectara():
         else:
             headers["Authorization"] = f"Bearer {self.jwt_token}"
 
-        print ("Uploading the chunks...")
+        if not silent:
+            print ("Uploading the chunks...")
 
         response = requests.post(
             url,

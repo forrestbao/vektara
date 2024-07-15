@@ -1,31 +1,21 @@
+# This is an advanced demo of Vectara 
+# Why it is advanced?
+# 1. It uses a customized, non-summarization prompt template to generate text from query results. 
+# 2. It adds document-level and chunk-level metadata and filters content for search. 
+# 3. It has pagination. 
+
 #%% 
+
+
 from vectara import Vectara, post_process_query_result
 import json
 
-V = Vectara(
-    api_key="ABC", 
-    customer_id="123"
-) # manually set the API key and customer ID instead of getting them from environment variables.
+V = Vectara()
 
-corpus_id = V.create_corpus('America, the Beautiful') # create a new corpus
+# corpus_id = V.create_corpus('America, the Beautiful') # create a new corpus
 
-V.upload(
-    corpus_id, 
-    'test_data/consitution_united_states.txt', 
-    doc_id='we the people', 
-    metadata={
-        'number of amendements': '27', 
-        'Author': 'Representatives from 13 states', 
-        'number of words': 4543
-        }, 
-    verbose=True)
-
-V.query(
-    corpus_id, 
-    "What if the government fails to protect your rights?", 
-    metadata_filter="doc.id = 'we the people'", 
-    top_k=3, print_format='json')
-
+corpus_id = 4 # use an existing corpus
+V.reset_corpus(corpus_id) # delete all documents in the corpus
 
 V.upload(
     corpus_id, 
@@ -42,10 +32,23 @@ V.upload(
     ]
     )
 
+prompt_template_string = ('['
+'  {"role": "system", "content": "You are a history teacher."}, '
+'  #foreach ($qResult in $vectaraQueryResults) '
+'     {"role": "user", "content": "Give me the $vectaraIdxWord[$foreach.index] search result."}, '
+'     {"role": "assistant", "content": "${qResult.getText()}" }, ' 
+'  #end '
+'  {"role": "user", "content": "Explain the historical background of the above results to a 5-year-old."} '
+']'
+)
+
 V.query(
     corpus_id, 
     "What if the government infringes your rights?", 
-    top_k=3, 
-    metadata_filter="doc.id = 'the war' or doc.id='the beginning'", print_format='json')
+    top_k=3,
+    offset=5, 
+    prompt_template_string=prompt_template_string,
+    metadata_filter="doc.id = 'the war' or doc.id='the beginning'", print_format='json', 
+    verbose=True)
 
 V.reset_corpus(corpus_id) # delete all documents in the corpus
