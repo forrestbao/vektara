@@ -679,6 +679,7 @@ class Vectara():
               contextConfig: dict = None,
               do_generation: bool = True,
               LLM: Literal['GPT-4', 'GPT-3.5-Turbo', 'GPT-4-Turbo'] = 'GPT-3.5-Turbo', 
+              lambda_: float = 0.005, 
               prompt_template_string: str="", 
               metadata_filter: str = "",
               print_format: Literal['json', 'markdown'] = '',
@@ -718,6 +719,8 @@ class Vectara():
                 whether to use the retrieved results for generation. Default: True
             LLM: Literal['GPT-4', 'GPT-3.5-Turbo', 'GPT-4-Turbo']
                 the language model to use for generation. Default: 'GPT-3.5-Turbo'
+            lambda: float
+                The weight for keyword search. Search ranking is lambda * keyword_score + (1-lambda) * neural_score. When lambda is zero, the search is pure neural. When 1, pure keyword-based. Default: 0.005
             prompt_messages: List[Message]
             metadata_filter: str
                 Vectara's metadata filter to narrow down the search results. See https://docs.vectara.com/docs/learn/metadata-search-filtering/filter-overview and for details.
@@ -744,7 +747,10 @@ class Vectara():
                         "corpusKey": [
                             {
                                 # "customerId": customer_id,
-                                "corpusId": corpus_id,
+                                "corpusId": corpus_id, 
+                                "lexicalInterpolationConfig": {
+                                    "lambda": lambda_
+                                }
                             }
                         ]
                     }
@@ -1049,10 +1055,13 @@ class Vectara():
             data=json.dumps(request)
             )
 
-        if verbose:
-            print (response.json())
+        if response.json()['status']['code'] != 'OK' or verbose:
+            print ("Request:")
+            print (json.dumps(request, indent=2, ensure_ascii=False))
+            print ("Response:")
+            print (response.json()['status'])
 
-        return response.json()
+        return response
 
     # @funix(disable=True)
     def list_jobs(self,
@@ -1163,8 +1172,6 @@ class Vectara():
         ------------
             corpus_id: int
                 the corpus ID to set filters for
-            name: str
-                the name of the filter. must match a name in the metadata of the documents in the corpus.
             filters: List[Filter]
                 a list of filters to set. Each filter is an instance of the Filter class.
 
