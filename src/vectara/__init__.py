@@ -1055,10 +1055,13 @@ class Vectara():
             data=json.dumps(request)
             )
 
-        if verbose:
-            print (response.json())
+        if response.json()['status']['code'] != 'OK' or verbose:
+            print ("Request:")
+            print (json.dumps(request, indent=2, ensure_ascii=False))
+            print ("Response:")
+            print (response.json()['status'])
 
-        return response.json()
+        return response
 
     # @funix(disable=True)
     def list_jobs(self,
