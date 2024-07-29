@@ -436,6 +436,7 @@ class Vectara():
             headers["Authorization"] = f"Bearer {self.jwt_token}"
 
         payload = {
+            "customerId": self.customer_id,
             "corpusId": corpus_id,
             "documentId": doc_id
         }
