@@ -1033,8 +1033,8 @@ class Vectara():
         parts = [{"text": chunk} for chunk in chunks]
         if len(chunk_metadata) > 0:
             assert len(chunk_metadata) == len(chunks), "Length of chunk_metadata must be the same as the number of chunks."
-            parts = [d | {"metadataJson": json.dumps(metadata)} for d, metadata in zip(parts, chunk_metadata)]
-        document = {'document_id': doc_id, 'parts': parts, 'metadataJson': json.dumps(doc_metadata)}
+            parts = [d | {"metadataJson": json.dumps(metadata, ensure_ascii=False)} for d, metadata in zip(parts, chunk_metadata)]
+        document = {'document_id': doc_id, 'parts': parts, 'metadataJson': json.dumps(doc_metadata, ensure_ascii=False)}
         request = {'customer_id': self.customer_id, 'corpus_id': corpus_id, 'document': document}
 
         # print (json.dumps(request, indent=2))
@@ -1055,11 +1055,15 @@ class Vectara():
             data=json.dumps(request)
             )
 
-        if response.json()['status']['code'] != 'OK' or verbose:
-            print ("Request:")
-            print (json.dumps(request, indent=2, ensure_ascii=False))
-            print ("Response:")
-            print (response.json()['status'])
+        if 'status' in response.json():
+            if response.json()['status']['code'] != 'OK' or verbose:
+                print ("Request:")
+                print (json.dumps(request, indent=2, ensure_ascii=False))
+                print ("Response:")
+                print (response.json()['status'])
+        else:
+            print ("`status` not in Response:")
+            print (response.json())
 
         return response
 
