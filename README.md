@@ -1,10 +1,10 @@
-# An UNofficial Python SDK and CLI/GUI client for Vectara's RAG platform
+# An Unofficial Python SDK and CLI for Vectara's RAG platform
 
 <div align="center">
 <h3>
 
-[![PyPI version](https://badge.fury.io/py/vectara.svg)](https://badge.fury.io/py/vectara)
-[Reference Manual](https://vectara-python-cli.readthedocs.io/en/latest/)
+[![PyPI version](https://badge.fury.io/py/vektara.svg)](https://badge.fury.io/py/vektara)
+[Reference Manual](https://vektara.readthedocs.io/en/latest/)
 
 </h3>
 </div>
@@ -12,12 +12,12 @@
 ## Installation
 
 ```bash
-pip install vectara # Stable
+pip install vektara # Stable
 # OR
-pip install "git+https://github.com/forrestbao/vectara-python-cli.git" # Nightly
+pip install "git+https://github.com/forrestbao/vektara.git" # Nightly
 # OR
 # Development mode where local changes are reflected immediately
-git clone https://github.com/forrestbao/vectara-python-cli.git
+git clone https://github.com/forrestbao/vektara.git
 pip install -e .
 ```
 
@@ -29,9 +29,9 @@ Here are the basic steps in RAG:
 3. Querying: ask questions to the corpus.
 
 ```python
-import vectara
+from vektara import Vectara
 
-client = vectara.Vectara() # get credentials from environment variables
+client = Vectara() # get credentials from environment variables
 
 corpus_id = client.create_corpus('founding documents of the US')
 
@@ -98,20 +98,20 @@ You must [obtain and set up your Vectara credentials as environment variables](#
 
 ```bash
 # create a corpus
-vectara create_corpus 'my knowledge base'
+vektara create_corpus 'my knowledge base'
 # output: corpus_id = 12
 
 # upload a file to the corpus
-vectara upload 12 one_file.pdf # corpurs_id = 12
+vektara upload 12 one_file.pdf # corpurs_id = 12
 
 # upload a folder to the corpus
-vectara upload 12 ./a_folder_of_documents # corpurs_id = 12
+vektara upload 12 ./a_folder_of_documents # corpurs_id = 12
 
 # query the corpus
-vectara query 12 'Vectara allows me to search for anything, right?' --top_k=5  # corpurs_id = 12
+vektara query 12 'Vectara allows me to search for anything, right?' --top_k=5  # corpurs_id = 12
 
 # reset the corpus
-vectara reset_corpus 12 # corpurs_id = 12
+vektara reset_corpus 12 # corpurs_id = 12
 ```
 
 ## The GUI client via Funix
@@ -120,7 +120,7 @@ The SDK can be converted into a web interface via [Funix](http://funix.io). You 
 
 ```python
 pip install funix
-funix src/vectara/__init__.py
+funix src/vektara/__init__.py
 ```
 
 Then you can access the web interface at `http://localhost:3000` (the port number maybe different if port 3000 is occupied).

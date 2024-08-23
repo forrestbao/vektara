@@ -7,14 +7,14 @@
 #%% 
 
 
-from vectara import Vectara, post_process_query_result
+from vektara import Vectara, Filter
 import json
 
 V = Vectara()
 
 # corpus_id = V.create_corpus('America, the Beautiful') # create a new corpus
 
-corpus_id = 4 # use an existing corpus
+corpus_id = 8 # use an existing corpus
 V.reset_corpus(corpus_id) # delete all documents in the corpus
 
 V.upload(
@@ -47,6 +47,7 @@ V.query(
     "What if the government infringes your rights?", 
     top_k=3,
     offset=5, 
+    do_generation=True,
     prompt_template_string=prompt_template_string,
     metadata_filter="doc.id = 'the war' or doc.id='the beginning'", print_format='json', 
     verbose=True)

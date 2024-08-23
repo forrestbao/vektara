@@ -1,5 +1,5 @@
 #%% 
-from vectara import Vectara
+from vektara import Vectara
 
 V = Vectara()
 
@@ -17,7 +17,7 @@ section_metadata = [{"raw_text": text} for text in sections]
 
 doc_metadata = {"raw_doc": " ".join(sections)}
 
-r = V.add_sections(
+r = V.create_document_from_sections(
     corpus_id, 
     sections=sections, 
     section_ids = section_ids,

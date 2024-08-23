@@ -1,9 +1,9 @@
-# A Python SDK and CLI for Vectara's RAG platform
+# An UNofficial Python SDK and CLI for Vectara's RAG platform
 # GPL v3.0 License
 # Not officially endorsed by Vectara
 # Use at your own risk
 
-# Copyleft 2023 Forrest Sheng Bao et al.
+# Copyleft 2023-24 Forrest Sheng Bao et al.
 # forrest@vectara.com
 
 
@@ -16,22 +16,13 @@ from tqdm import tqdm
 from IPython.display import Markdown, display_markdown
 import markdown, bs4
 import textwrap
+import curlify
 
 # from funix import funix_class, funix_method, funix
 # from funix.session import set_global_variable
 # from funix.hint import BytesFile
 
 import pydantic 
-
-# @funix_class(disable=True)
-# class Filter(pydantic.BaseModel):
-#     """A filter to be set on a corpus.
-#     """
-#     name: str
-#     type: Literal['str', 'float', 'int', 'bool']
-#     level: Literal['doc', 'part']
-#     description: str = ''
-#     index: bool = False
 
 from .data_types import Filter, Message, GeneratioConfig
 
@@ -60,6 +51,14 @@ def md2text(md: str):
     html = markdown.markdown(md)
     soup = bs4.BeautifulSoup(html, features='html.parser')
     return soup.get_text()
+
+def curlify_request(method, url, headers, payload) -> str:
+    print (f"curl -X {method} {url} \ ")
+    for key, value in headers.items():
+        print (f" -H \"{key}: {value} \" \ ")
+    print ("-d @- <<END;")
+    print (json.dumps(payload, indent=2))
+    print ("END")    
 
 # @funix_class()
 class Vectara():
@@ -95,7 +94,7 @@ class Vectara():
                 from_cli: bool = False,
                 use_oauth2: bool = False
             ):
-        """Initialize a ``vectara``-class object.
+        """Initialize a ``Vektara``-class object.
 
         This function supports authentication with Vectara server using either OAuth2 or API Key. If using OAuth2, ``client_id`` and ``client_secret`` must be provided. If using API Key, ``api_key`` must be provided. When both OAuth2 and API credentials are provided, API Key will be used.
 
@@ -103,17 +102,17 @@ class Vectara():
 
         Examples
         ------------
-        >>> from vectara import Vectara
-        >>> V = Vectara() # get default credentials from environment variables
-        >>> V = Vectara(api_key='abc', customer_id='123') # pass in credentials for using Personal API key
-        >>> V = Vectara(client_id='abc', client_secret='xyz', customer_id='123') # pass in credentials for using OAuth2
+        >>> from vektara import Vectara
+        >>> client = Vectara() # get default credentials from environment variables
+        >>> client = Vectara(api_key='abc', customer_id='123') # pass in credentials for using Personal API key
+        >>> client = Vectara(client_id='abc', client_secret='xyz', customer_id='123') # pass in credentials for using OAuth2
 
         Parameters
         --------------
         base_url: str
             The base URL of the Vectara API. Default is ``https://api.vectara.io``. It can be an URL provided by an API proxy, such as one from `LlamaKey.ai <LlamaKey.ai>`_.
         customer_id: str
-            The customer ID of the Vectara account. Default to environment variable ``VECTARR_CUSTOMER_ID``. To get an Vectara customer ID, see `here <https://docs.vectara.com/docs/quickstart#view-your-customer-id>`_.
+            The customer ID of the Vectara account. Default to environment variable ``VECTARA_CUSTOMER_ID``. To get an Vectara customer ID, see `here <https://docs.vectara.com/docs/quickstart#view-your-customer-id>`_.
         api_key: str
             The API key of the Vectara account. Default to environment variable ``VECTARA_API_KEY``. To get a Vectara API key, see `here <https://docs.vectara.com/docs/api-reference/auth-apis/api-keys>`_.
         client_id: str
@@ -129,7 +128,7 @@ class Vectara():
         def get_env(env: str, default: str) -> str:
             result = os.environ.get(env, default)
             if result is None or result.isspace() or len(result) == 0:
-                raise TypeError(f"Expecting `{env}` in __init__ of the `vectara` class or as an environment variable. But it is not set.")
+                raise TypeError(f"Expecting `{env}` in __init__ of the `Vektara` class or as an environment variable. But it is not set.")
             return result
 
         def is_void(s: str):
@@ -173,7 +172,7 @@ class Vectara():
                 print ("Although OAuth2 credentials are available, API key will be used because it is present. To use OAuth2, either unset API key or set use_oauth2 to True to override.")
 
         if not from_cli:
-            print("Vectara SDK initialized. ")
+            print("Vektara SDK initialized. ")
 
         # FIXME: CLI mode cannot maintain the instance variable self.jwt_token set in non-__init__ methods, so we need to get a new JWT token for each method call.
         # But this seems to be a limitation of Google-Fire that a member variable cannot be set in one method (except the __init__) and used in another method.
@@ -242,8 +241,9 @@ class Vectara():
 
         Examples
         ------------
-        >>> from vectara import Vectara
-        >>> corpus_id = V.create_corpus('America, the Beautiful') # create a new corpus called 'America, the Beautiful'
+        >>> from vektara import Vectara
+        >>> client = Vectara() # get default credentials from environment variables
+        >>> corpus_id = client.create_corpus('America, the Beautiful') # create a new corpus called 'America, the Beautiful'
 
         Parameters
         ------------
@@ -310,9 +310,9 @@ class Vectara():
 
         Examples
         ------------
-        >>> from vectara import Vectara
-        >>> V = Vectara() # get default credentials from environment variables
-        >>> V.reset_corpus(11) # reset the corpus with ID 11
+        >>> from vektara import Vectara
+        >>> client = Vectara() # get default credentials from environment variables
+        >>> client.reset_corpus(11) # reset the corpus with ID 11
 
         Parameters
         ------------
@@ -368,9 +368,9 @@ class Vectara():
 
         Examples
         ------------
-        >>> from vectara import Vectara
-        >>> V = Vectara() # get default credentials from environment variables
-        >>> V.list_documents(11, numResults=5) # list the first 5 documents in the corpus with ID 11
+        >>> from vektara import Vectara
+        >>> client = Vectara() # get default credentials from environment variables
+        >>> client.list_documents(11, numResults=5) # list the first 5 documents in the corpus with ID 11
 
         Parameters
         ------------
@@ -421,9 +421,9 @@ class Vectara():
 
         Examples
         ------------
-        >>> from vectara import Vectara
-        >>> V = Vectara() # get default credentials from environment variables
-        >>> V.delete_document(11, 'we the people') # delete the document with ID 'we the people' from the corpus with ID 11
+        >>> from vektara import Vectara
+        >>> client = Vectara() # get default credentials from environment variables
+        >>> client.delete_document(11, 'we the people') # delete the document with ID 'we the people' from the corpus with ID 11
         """
 
         url = f"{self.base_url}/v1/delete-doc"
@@ -461,12 +461,12 @@ class Vectara():
 
         Examples
         ------------
-        >>> from vectara import Vectara 
-        >>> V = Vectara() # get default credentials from environment variables
-        >>> V.upload(corpus_id, 'test_data/consitution_united_states.txt') # upload one file
-        >>> V.upload(corpus_id, ['test_data/consitution_united_states.txt', 'test_data/declaration_of_independence.txt'])  # upload a list of files
-        >>> V.upload(corpus_id, "test_data") # upload all files in a folder, no recursion
-        >>> V.upload(
+        >>> from vektara import Vectara 
+        >>> client = Vectara() # get default credentials from environment variables
+        >>> client.upload(corpus_id, 'test_data/consitution_united_states.txt') # upload one file
+        >>> client.upload(corpus_id, ['test_data/consitution_united_states.txt', 'test_data/declaration_of_independence.txt'])  # upload a list of files
+        >>> client.upload(corpus_id, "test_data") # upload all files in a folder, no recursion
+        >>> client.upload(
                 corpus_id = 11,
                 source = 'test_data/consitution_united_states.txt',
                 doc_id='we the people',
@@ -477,7 +477,7 @@ class Vectara():
                     },
                 verbose=True
             )
-        >>> V.upload(
+        >>> client.upload(
                 corpus_id = 11,
                 source = ['test_data/consitution_united_states.txt', 'test_data/declaration_of_independence.txt', 'test_data/gettysburg_address.txt'],
                 doc_id=[
@@ -685,15 +685,16 @@ class Vectara():
               metadata_filter: str = "",
               print_format: Literal['json', 'markdown'] = '',
               jupyter_display: bool = False,
-              verbose: bool = False
+              print_curl: bool = False, 
+              **kwargs: Dict[str, str] # for future expansion
         ) -> Dict:
         """Make a query to a corpus at Vectara
 
         Examples
         ------------
-        >>> from vectara import Vectara
-        >>> V = Vectara() # get default credentials from environment variables
-        >>> V.query(
+        >>> from vektara import Vectara
+        >>> client = Vektara() # get default credentials from environment variables
+        >>> client.query(
                 corpus_id,
                 "What if the government fails to protect your rights?",
                 metadata_filter="doc.id = 'we the people'",
@@ -778,11 +779,6 @@ class Vectara():
         if metadata_filter != "": # add metadata filter
             payload["query"][0]["corpusKey"][0]["metadataFilter"] = metadata_filter
 
-        if verbose:
-            print (json.dumps(payload, indent=2))
-
-        payload = json.dumps(payload)
-
         headers = {
             # 'Content-Type': 'application/json',
             # 'Accept': 'application/json',
@@ -794,7 +790,11 @@ class Vectara():
         else:
             headers["Authorization"] = f"Bearer {self.jwt_token}"
 
-        response = requests.post(url, headers=headers, data=payload)
+        if print_curl:
+            method = "POST"
+            curlify_request(method, url, headers, payload)
+
+        response = requests.post(url, headers=headers, data=json.dumps(payload))
 
         if response.status_code != 200:
             print(f"Vectara server returned {response.status_code} error. ")
@@ -879,9 +879,9 @@ class Vectara():
 
         Examples
         ------------
-        >>> from vectara import Vectara
-        >>> V = Vectara() # get default credentials from environment variables
-        >>> V.add_sections(
+        >>> from vektara import Vectara
+        >>> client = Vectara() # get default credentials from environment variables
+        >>> client.add_sections(
                 corpus_id = 11,
                 sections = [
                     "I have one TV. ",
@@ -982,31 +982,13 @@ class Vectara():
             doc_id: str = "",
             doc_metadata: Dict = {},
             verbose: bool = False, 
+            print_curl: bool = False,
             silent: bool=False) -> dict:
         """Create a document in a corpus specified by ``corpus_id`` from a list of texts, each of which is a chunk of the document.
 
         This is for experts. A document is a collection of chunks. Each chunk is a unit in retrieval.
 
         The difference between this method and ``create_document_from_sections`` is that in this method, you can control the chunking of texts -- a chunk you upload is the retrieval unit -- and all chunks are at the same level, while in ``create_document_from_sections``, you cannot control the chunking of texts and the sections can be hierarchical (although currently only one level of hierarchy is supported in this SDK).
-
-        Examples
-        ------------
-        >>> from vectara import Vectara
-        >>> V = Vectara() # get default credentials from environment variables
-        >>> V.create_document_from_chunks(
-                corpus_id = 11,
-                chunks = [
-                    "I have one TV. ",
-                    "Ich habe einen TV."
-                ],
-                chunk_metadata = [
-                    {"language": "English"},
-                    {"language": "German"}
-                ],
-                doc_id = "my apartment",
-                doc_metadata = {"genre": "life"},
-                verbose = True
-            )
 
         Parameters
         -----------
@@ -1022,11 +1004,34 @@ class Vectara():
                 (Optional) the metadata for the document. If provided, the metadata will be piggied back in the query result. If not provided, the metadata will be empty.
             verbose: bool
                 (Optional) whether to print the detailed information. Default is False.
+            print_curl: bool
+                (Optional) whether to print the curl command. Default is False.
+            silent: bool
+                (Optional) whether to suppress the printout. Default is False.
 
         Returns
         --------
             dict
                 the response from the Vectara server.
+
+        Examples
+        ------------
+        >>> from vektara import Vectara
+        >>> client = Vectara() # get default credentials from environment variables
+        >>> client.create_document_from_chunks(
+                corpus_id = 11,
+                chunks = [
+                    "I have one TV. ",
+                    "Ich habe einen TV."
+                ],
+                chunk_metadata = [
+                    {"language": "English"},
+                    {"language": "German"}
+                ],
+                doc_id = "my apartment",
+                doc_metadata = {"genre": "life"},
+                verbose = True
+            )               
 
         """
         url = "https://api.vectara.io/v1/core/index"
@@ -1036,7 +1041,7 @@ class Vectara():
             assert len(chunk_metadata) == len(chunks), "Length of chunk_metadata must be the same as the number of chunks."
             parts = [d | {"metadataJson": json.dumps(metadata)} for d, metadata in zip(parts, chunk_metadata)]
         document = {'document_id': doc_id, 'parts': parts, 'metadataJson': json.dumps(doc_metadata)}
-        request = {'customer_id': self.customer_id, 'corpus_id': corpus_id, 'document': document}
+        payload = {'customer_id': self.customer_id, 'corpus_id': corpus_id, 'document': document}
 
         # print (json.dumps(request, indent=2))
 
@@ -1050,15 +1055,19 @@ class Vectara():
         if not silent:
             print ("Uploading the chunks...")
 
+        if print_curl:
+            method = "POST"
+            curlify_request(method, url, headers, payload)
+
         response = requests.post(
             url,
             headers=headers,
-            data=json.dumps(request)
+            data=json.dumps(payload)
             )
 
         if response.json()['status']['code'] != 'OK' or verbose:
             print ("Request:")
-            print (json.dumps(request, indent=2, ensure_ascii=False))
+            print (json.dumps(payload, indent=2, ensure_ascii=False))
             print ("Response:")
             print (response.json()['status'])
 
@@ -1184,13 +1193,13 @@ class Vectara():
         Examples 
         ------------
 
-        >>> from vectara import Vectara, Filter
-        >>> V = Vectara() # get default credentials from environment variables
+        >>> from vektara import Vectara, Filter
+        >>> client = Vectara() # get default credentials from environment variables
         >>> filters = [
                 Filter(name="country", type='str', level='doc', index=True),
                 Filter(name="note", type='str', level='part', index=False)
             ]
-        >>> V.set_corpus_filters(2, filters)
+        >>> client.set_corpus_filters(2, filters)
 
         References
         ------------
