@@ -1,5 +1,5 @@
 
-Reference of ``vectara``
+Reference of ``vektara``
 ==================================
 
 .. include::
@@ -10,7 +10,7 @@ The background classes
 
 Here are the classes used by the `Vectara` class.
 
-.. automodule:: vectara
+.. automodule:: vektara
 .. autoclass:: Filter
 
 The ``Vectara`` class

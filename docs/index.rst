@@ -3,20 +3,20 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-``vectara``, an unofficial Vectara Python SDK with CLI and GUI tools
+``vektara``, an unofficial Vectara Python SDK with CLI
 ========================================================================================
 
-``vectara`` (``pip install vectara``) is a Python SDK/CLI/GUI that allows you to use Vectara's semantic search and knowledge-based GenAI service to find answers to your questions from massive amounts of textual data. 
+``vektara`` (``pip install vektara``) is a Python SDK/CLI/GUI that allows you to use Vectara's semantic search and knowledge-based GenAI service to find answers to your questions from massive amounts of textual data. 
 
 
-Here are the resources for learning ``vectara``: 
+Here are the resources for learning ``vektara``: 
 
-* `A crash course of RAG and vectara <crash_course.html>`_. 
+* `A crash course of RAG and vektara <crash_course.html>`_. 
 * `Reference Manual <Vectara.html>`_.
 * `Demos <https://github.com/forrestbao/vectara-python-cli/tree/main/demos>`_.
 
 
-`vectara-python-cli` is unofficially maintained by employees and users of Vectara. 
+`vektara` is unofficially maintained by employees and users of Vectara. 
 
 Indices and tables
 -------------------  
