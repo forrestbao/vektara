@@ -13,3 +13,4 @@ myst-parser
 sphinxcontrib.mermaid
 sphinx-markdown-tables
 curlify
+pydantic

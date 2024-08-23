@@ -16,7 +16,7 @@ Here are the classes used by the `Vectara` class.
 The ``Vectara`` class
 --------------------
 
-The ``Vectara`` class is the main offering of the ``vectara`` package. It allows you to establish a connection to the Vectara service, upload data, and make queries.
+The ``Vectara`` class is the main offering of the ``vektara`` package. It allows you to establish a connection to the Vectara service, upload data, and make queries.
 
 .. automodule:: vektara
 .. autoclass:: Vectara

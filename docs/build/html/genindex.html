@@ -6,6 +6,7 @@
   <title>Index &mdash; Unofficial Vectara Python SDK/CLI/GUI 0.0.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=1ab0f9b0" />
 
   
   <!--[if lt IE 9]>
@@ -17,6 +18,8 @@
         <script src="_static/documentation_options.js?v=47de8214"></script>
         <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="https://unpkg.com/mermaid@10.2.0/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -71,14 +74,14 @@
 
 <div class="genindex-jumpbox">
  <a href="#_"><strong>_</strong></a>
- | <a href="#A"><strong>A</strong></a>
  | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
- | <a href="#P"><strong>P</strong></a>
  | <a href="#Q"><strong>Q</strong></a>
  | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
  | <a href="#U"><strong>U</strong></a>
  | <a href="#V"><strong>V</strong></a>
  
@@ -86,19 +89,7 @@
 <h2 id="_">_</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#vectara.vectara.__init__">__init__() (vectara.vectara method)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="A">A</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#vectara.vectara.acquire_jwt_token">acquire_jwt_token() (vectara.vectara method)</a>, <a href="vectara.html#vectara.vectara.acquire_jwt_token">[1]</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="vectara.html#vectara.vectara.add_corpus_filters">add_corpus_filters() (vectara.vectara method)</a>
+      <li><a href="Vectara.html#vektara.Vectara.__init__">__init__() (vektara.Vectara method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -106,13 +97,21 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#vectara.vectara.create_corpus">create_corpus() (vectara.vectara method)</a>, <a href="vectara.html#vectara.vectara.create_corpus">[1]</a>
+      <li><a href="Vectara.html#vektara.Vectara.create_corpus">create_corpus() (vektara.Vectara method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#vectara.vectara.create_document_from_chunks">create_document_from_chunks() (vectara.vectara method)</a>, <a href="vectara.html#vectara.vectara.create_document_from_chunks">[1]</a>
+      <li><a href="Vectara.html#vektara.Vectara.create_document_from_chunks">create_document_from_chunks() (vektara.Vectara method)</a>
 </li>
-      <li><a href="index.html#vectara.vectara.create_document_from_sections">create_document_from_sections() (vectara.vectara method)</a>, <a href="vectara.html#vectara.vectara.create_document_from_sections">[1]</a>
+      <li><a href="Vectara.html#vektara.Vectara.create_document_from_sections">create_document_from_sections() (vektara.Vectara method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="Vectara.html#vektara.Vectara.delete_document">delete_document() (vektara.Vectara method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -120,7 +119,7 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="vectara.html#vectara.vectara.feedback">feedback() (vectara.vectara method)</a>
+      <li><a href="Vectara.html#vektara.Filter">Filter (class in vektara)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -128,11 +127,11 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#vectara.vectara.list_documents">list_documents() (vectara.vectara method)</a>, <a href="vectara.html#vectara.vectara.list_documents">[1]</a>
+      <li><a href="Vectara.html#vektara.Vectara.list_documents">list_documents() (vektara.Vectara method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#vectara.vectara.list_jobs">list_jobs() (vectara.vectara method)</a>, <a href="vectara.html#vectara.vectara.list_jobs">[1]</a>
+      <li><a href="Vectara.html#vektara.Vectara.list_jobs">list_jobs() (vektara.Vectara method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -140,36 +139,20 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="vectara.html#vectara.md2text">md2text() (in module vectara)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     module
 
       <ul>
-        <li><a href="index.html#module-vectara">vectara</a>, <a href="vectara.html#module-vectara">[1]</a>
+        <li><a href="Vectara.html#module-0">vektara</a>, <a href="Vectara.html#module-vektara">[1]</a>
 </li>
       </ul></li>
-  </ul></td>
-</tr></table>
-
-<h2 id="P">P</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="vectara.html#vectara.post_process_query_result">post_process_query_result() (in module vectara)</a>
-</li>
   </ul></td>
 </tr></table>
 
 <h2 id="Q">Q</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#vectara.vectara.query">query() (vectara.vectara method)</a>, <a href="vectara.html#vectara.vectara.query">[1]</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="vectara.html#vectara.vectara.query_funix">query_funix() (vectara.vectara method)</a>
+      <li><a href="Vectara.html#vektara.Vectara.query">query() (vektara.Vectara method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -177,7 +160,15 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#vectara.vectara.reset_corpus">reset_corpus() (vectara.vectara method)</a>, <a href="vectara.html#vectara.vectara.reset_corpus">[1]</a>
+      <li><a href="Vectara.html#vektara.Vectara.reset_corpus">reset_corpus() (vektara.Vectara method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="Vectara.html#vektara.Vectara.set_corpus_filters">set_corpus_filters() (vektara.Vectara method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -185,17 +176,7 @@
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#vectara.vectara.upload">upload() (vectara.vectara method)</a>, <a href="vectara.html#vectara.vectara.upload">[1]</a>
-</li>
-      <li><a href="vectara.html#vectara.vectara.upload_file">upload_file() (vectara.vectara method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="vectara.html#vectara.vectara.upload_file_from_funix">upload_file_from_funix() (vectara.vectara method)</a>
-</li>
-      <li><a href="vectara.html#vectara.vectara.upload_files">upload_files() (vectara.vectara method)</a>
-</li>
-      <li><a href="vectara.html#vectara.vectara.upload_folder">upload_folder() (vectara.vectara method)</a>
+      <li><a href="Vectara.html#vektara.Vectara.upload">upload() (vektara.Vectara method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -203,17 +184,17 @@
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li>
-    vectara
-
-      <ul>
-        <li><a href="index.html#module-vectara">module</a>, <a href="vectara.html#module-vectara">[1]</a>
+      <li><a href="Vectara.html#vektara.Vectara">Vectara (class in vektara)</a>
 </li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#vectara.vectara">vectara (class in vectara)</a>, <a href="vectara.html#vectara.vectara">[1]</a>
+      <li>
+    vektara
+
+      <ul>
+        <li><a href="Vectara.html#module-0">module</a>, <a href="Vectara.html#module-vektara">[1]</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 

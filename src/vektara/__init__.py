@@ -22,8 +22,6 @@ import curlify
 # from funix.session import set_global_variable
 # from funix.hint import BytesFile
 
-import pydantic 
-
 from .data_types import Filter, Message, GeneratioConfig
 
 import sqlite3
