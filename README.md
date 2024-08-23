@@ -73,11 +73,11 @@ Alternatively, you can pass in your credentials as arguments when [initializing 
 ## Using the Python SDK
 
 Here are the resources to learn the Python SDK:
-1. [Reference manual](https://vectara-python-cli.readthedocs.io/en/latest/)
-2. [Crash course](https://vectara-python-cli.readthedocs.io/en/latest/crash_course.html)
+1. [Reference manual](https://vektara.readthedocs.io/en/latest/)
+2. [Crash course](https://vektara.readthedocs.io/en/latest/crash_course.html)
 3. [Demos](./demos)
 
-The SDK supports the following operations. Detailed usages can be found in the [reference manual](https://vectara-python-cli.readthedocs.io/en/latest/).
+The SDK supports the following operations. Detailed usages can be found in the [reference manual](https://vektara.readthedocs.io/en/latest/).
 1. Create a corpus
 2. Reset a corpus (cleans out documents in a corpus but keeps the corpus and metadata)
 3. List the documents in a corpus
