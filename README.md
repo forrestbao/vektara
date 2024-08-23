@@ -18,7 +18,7 @@ pip install "git+https://github.com/forrestbao/vektara.git" # Nightly
 # OR
 # Development mode where local changes are reflected immediately
 git clone https://github.com/forrestbao/vektara.git
-pip install -e .
+pip install -e vektara
 ```
 
 ## Hello, world!
