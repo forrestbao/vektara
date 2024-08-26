@@ -92,7 +92,7 @@ class Vectara():
                 from_cli: bool = False,
                 use_oauth2: bool = False
             ):
-        """Initialize a ``Vektara``-class object.
+        """Initialize a ``Vectara``-class object.
 
         This function supports authentication with Vectara server using either OAuth2 or API Key. If using OAuth2, ``client_id`` and ``client_secret`` must be provided. If using API Key, ``api_key`` must be provided. When both OAuth2 and API credentials are provided, API Key will be used.
 
@@ -1078,6 +1078,7 @@ class Vectara():
             elapsed_seconds: int = None,
             states: List[Literal['QUEUED', 'STARTED', 'COMPLETED', 'FAILED', 'ABORTED', 'UNKNOWN']] = None,
             numResults: int = 10,
+            print_curl: bool = False,
             pageKey: str = None
             ) -> dict:
         """List the statuses of jobs.
@@ -1164,6 +1165,10 @@ class Vectara():
         if pageKey:
             payload['pageKey'] = pageKey
 
+        if print_curl:
+            method = "POST"
+            curlify_request(method, url, headers, payload)
+
         response = requests.post(url, headers=headers,data=json.dumps(payload))
 
         return response.json()
@@ -1171,7 +1176,8 @@ class Vectara():
     # @funix(disable=True)
     def set_corpus_filters(self,
             corpus_id: int,
-            filters: List[Filter]
+            filters: List[Filter], 
+            print_curl: bool = False
             ) -> Dict:
 
         """Set the filters for a corpus.
@@ -1245,6 +1251,10 @@ class Vectara():
             "corpusId": corpus_id,
             "filterAttributes": filterAttributes
         }
+
+        if print_curl:
+            method = "POST"
+            curlify_request(method, url, headers, payload)
 
         response = requests.post(url, headers=headers, data=json.dumps(payload))
         response_json = response.json()
