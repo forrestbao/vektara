@@ -11,7 +11,7 @@ class Filter(pydantic.BaseModel):
     type: Literal['str', 'float', 'int', 'bool']
     level: Literal['doc', 'part']
     description: str = ''
-    index: bool = False
+    indexed: bool = False
 
 class Message(pydantic.BaseModel):
     """An OpenAI message type to send to an LLM

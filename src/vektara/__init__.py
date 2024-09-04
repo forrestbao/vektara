@@ -1200,8 +1200,8 @@ class Vectara():
         >>> from vektara import Vectara, Filter
         >>> client = Vectara() # get default credentials from environment variables
         >>> filters = [
-                Filter(name="country", type='str', level='doc', index=True),
-                Filter(name="note", type='str', level='part', index=False)
+                Filter(name="country", type='str', level='doc', indexed=True),
+                Filter(name="note", type='str', level='part', indexed=False)
             ]
         >>> client.set_corpus_filters(2, filters)
 
@@ -1228,7 +1228,7 @@ class Vectara():
                 {
                     "name": filter.name,
                     "description": filter.description,
-                    "index": filter.index,
+                    "indexed": filter.indexed,
                     "type": f"FILTER_ATTRIBUTE_TYPE__{type_mapping.get(filter.type, filter.type)}",
                     "level": f"FILTER_ATTRIBUTE_LEVEL__{level_mapping.get(filter.level, filter.level)}"
                 }
