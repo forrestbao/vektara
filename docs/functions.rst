@@ -7,10 +7,10 @@ Administrative
 +-----------------------------------+--------------------------+----------------------------------+
 | Function                          | Vectara endpoint         | Purpose                          |
 +===================================+==========================+==================================+
-| ``vectara.acquire_jwt_token()``   | N/A because it is        | Acquire OAuth2 token             |
+| ``vektara.acquire_jwt_token()``   | N/A because it is        | Acquire OAuth2 token             |
 |                                   | through AWS              |                                  |
 +-----------------------------------+--------------------------+----------------------------------+
-| ``vectara.list_jobs()``           | ``list-jobs``            | List jobs, with filters if       |
+| ``vektara.list_jobs()``           | ``list-jobs``            | List jobs, with filters if       |
 |                                   |                          | applicable                       |
 +-----------------------------------+--------------------------+----------------------------------+
 
@@ -20,17 +20,17 @@ Corpus management
 +--------------------------------------+---------------------------+---------------------------------------------------+
 | Function                             | Vectara endpoint          | Purpose                                           |
 +======================================+===========================+===================================================+
-| ``vectara.create_corpus()``          | ``create-corpus``         | Create a new corpus                               |
+| ``vektara.create_corpus()``          | ``create-corpus``         | Create a new corpus                               |
 +--------------------------------------+---------------------------+---------------------------------------------------+
-| ``vectara.reset_corpus()``           | ``reset-corpus``          | Remove all documents in a corpus but keeping      |
+| ``vektara.reset_corpus()``           | ``reset-corpus``          | Remove all documents in a corpus but keeping      |
 |                                      |                           | the metadata if there is any                      |
 +--------------------------------------+---------------------------+---------------------------------------------------+
-| ``vectara.list_documents()``         | ``list-documents``        | List documents in a corpus                        |
+| ``vektara.list_documents()``         | ``list-documents``        | List documents in a corpus                        |
 +--------------------------------------+---------------------------+---------------------------------------------------+
-| ``vectara.add_corpus_filter()``      | ``replace-corpus-filter   | Set certain metadata fields to filterable         |
+| ``vektara.set_corpus_filter()``      | ``replace-corpus-filter   | Set certain metadata fields to filterable         |
 |                                      | -attrs``                  |                                                   |
 +--------------------------------------+---------------------------+---------------------------------------------------+
-| ``vectara.delete_document()``        | ``delete-doc``            | Delete a document by its ID                       |
+| ``vektara.delete_document()``        | ``delete-doc``            | Delete a document by its ID                       |
 +--------------------------------------+---------------------------+---------------------------------------------------+
 
 Adding content to a corpus 
@@ -39,14 +39,14 @@ Adding content to a corpus
 +-----------------------------------------------+-------------------+-----------------------------------------------------------------------------------+
 | Function                                      | Vectara endpoint  | Purpose                                                                           |
 +===============================================+===================+===================================================================================+
-| ``vectara.upload()``                          | ``fileUpload``    | Upload a single file, a list of files, or an entire folder. Supports adding       |
+| ``vektara.upload()``                          | ``fileUpload``    | Upload a single file, a list of files, or an entire folder. Supports adding       |
 |                                               |                   | metadata.                                                                         |
 +-----------------------------------------------+-------------------+-----------------------------------------------------------------------------------+
-| ``vectara.create_document_from_sections()``   | ``index``         | Create a document by adding texts with hierarchy, like a book consisting          |
+| ``vektara.create_document_from_sections()``   | ``index``         | Create a document by adding texts with hierarchy, like a book consisting          |
 |                                               |                   | of chapters consisting of sections, etc. But you have no control over             |
 |                                               |                   | how texts are chunked.                                                            |
 +-----------------------------------------------+-------------------+-----------------------------------------------------------------------------------+
-| ``vectara.create_document_from_chunks()``     | ``core/index``    | Create a document by adding text chunks without hierarchy. Each chunk             |
+| ``vektara.create_document_from_chunks()``     | ``core/index``    | Create a document by adding text chunks without hierarchy. Each chunk             |
 |                                               |                   | becomes a unit in retrieval.                                                      |
 +-----------------------------------------------+-------------------+-----------------------------------------------------------------------------------+
 
@@ -57,5 +57,5 @@ Querying a corpus
 | Function               | Vectara    | Purpose                            |
 |                        | endpoint   |                                    |
 +========================+============+====================================+
-| ``vectara.query()``    | ``query``  | Query a corpus. Supports filtering.|
+| ``vektara.query()``    | ``query``  | Query a corpus. Supports filtering.|
 +------------------------+------------+------------------------------------+

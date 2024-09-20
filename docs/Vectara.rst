@@ -2,13 +2,15 @@
 Reference of ``vektara``
 ==================================
 
+For more details, please refer to the [Github repo](https://github.com/forrestbao/vektara) of ``vektara``. 
+
 .. include::
    functions.rst
 
 The background classes
 ----------------------
 
-Here are the classes used by the `Vectara` class.
+Here are the classes used by the ``Vectara`` class.
 
 .. automodule:: vektara
 .. autoclass:: Filter

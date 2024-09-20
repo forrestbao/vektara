@@ -1,6 +1,6 @@
 # A crash course of RAG and `vektara`
 
-This document explains the concept of RAG (Retrieval-Augmented Generation) using a coding demo in `vektara`, a Python SDK for Vectara's RAG platform.
+This document explains the concept of RAG (Retrieval-Augmented Generation) using a coding demo in `vektara`, a Python SDK for Vectara's RAG platform. The source code of the SDK is available on [GitHub](https://github.com/forrestbao/vektara/). 
 
 ## TL;DR: Just five lines of code 
 ```python

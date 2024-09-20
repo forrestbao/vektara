@@ -13,7 +13,8 @@ Here are the resources for learning ``vektara``:
 
 * `A crash course of RAG and vektara <crash_course.html>`_. 
 * `Reference Manual <Vectara.html>`_.
-* `Demos <https://github.com/forrestbao/vectara-python-cli/tree/main/demos>`_.
+* `Demos <https://github.com/forrestbao/vektara/tree/main/demos>`_.
+* `GitHub <https://github.com/forrestbao/vektara>`_.
 
 
 `vektara` is unofficially maintained by employees and users of Vectara. 
