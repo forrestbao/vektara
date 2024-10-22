@@ -1032,7 +1032,7 @@ class Vectara():
             )               
 
         """
-        url = "https://api.vectara.io/v1/core/index"
+        url = f"{self.base_url}/v1/core/index"
 
         parts = [{"text": chunk} for chunk in chunks]
         if len(chunk_metadata) > 0:
